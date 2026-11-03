@@ -44,10 +44,14 @@ function heroScene() {
 }
 
 async function start() {
-  if (reduced) return;
+  const root = document.documentElement;
+  if (reduced) return root.classList.add('is-ready');
   await document.fonts.ready;
   startSmooth();
+  window.dispatchEvent(new Event('mecking:fit'));
   heroScene();
+  // Les éléments sont à leur point de départ : la page peut apparaître
+  root.classList.add('is-ready');
   declaredReveals();
   if (matchMedia('(hover: hover) and (pointer: fine)').matches) startCursor();
 }

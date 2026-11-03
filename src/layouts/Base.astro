@@ -50,6 +50,8 @@ const there = href(page, alt);
         d.dataset.season = s === 'ete' || s === 'hiver' ? s : month >= 4 && month <= 9 ? 'ete' : 'hiver';
         d.dataset.mode = m === 'jour' || m === 'nuit' ? m : matchMedia('(prefers-color-scheme: light)').matches ? 'jour' : 'nuit';
         d.classList.add('js');
+        // Filet de sécurité : la page apparaît même si les animations ne démarrent pas
+        setTimeout(function () { d.classList.add('is-ready'); }, 4000);
       })();
     </script>
   </head>

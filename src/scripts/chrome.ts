@@ -6,6 +6,8 @@ import { gsap } from 'gsap';
 import type { Season } from '../data/site';
 
 const root = document.documentElement;
+// Pages sans animation d'arrivée (mentions légales…) : affichage immédiat
+if (!document.querySelector('[data-hero]')) root.classList.add('is-ready');
 
 function store(key: string, value: string) {
   try {
@@ -108,10 +110,9 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !menu.hidden) setMenu(false);
 });
 
-// En-tête : clair sur les photos, opaque ailleurs, masqué quand on descend
+// En-tête fixe : clair sur les photos, opaque ailleurs
 const bar = document.querySelector<HTMLElement>('[data-bar]')!;
 const bead = document.querySelector<HTMLElement>('[data-progress]');
-let lastY = window.scrollY;
 let ticking = false;
 
 function onScroll() {
@@ -126,9 +127,6 @@ function onScroll() {
   });
   bar.classList.toggle('is-light', overPhoto);
   bar.classList.toggle('is-solid', !overPhoto && y > 10);
-  bar.classList.toggle('is-hidden', y > lastY + 4 && y > window.innerHeight * 0.6 && menu.hidden);
-  if (y < lastY - 4 || y < 10) bar.classList.remove('is-hidden');
-  lastY = y;
 
   const max = document.documentElement.scrollHeight - window.innerHeight;
   if (bead) bead.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
@@ -160,6 +158,8 @@ function fit() {
 }
 fit();
 document.fonts.ready.then(fit);
+// Les animations demandent la bonne taille juste avant de démarrer
+window.addEventListener('mecking:fit', fit);
 window.addEventListener('resize', fit);
 
 // Mot du pied de page : il monte quand on arrive en bas

@@ -181,10 +181,6 @@ html[data-season='ete'] .s-hiver {
   backdrop-filter: blur(12px);
 }
 
-.bar.is-hidden {
-  transform: translateY(-100%);
-}
-
 .bar__logo {
   display: block;
   width: clamp(7.5rem, 13vw, 10rem);
@@ -1626,4 +1622,18 @@ html.has-rider select {
 .menu__lang {
   color: var(--fg);
   letter-spacing: 0.04em;
+}
+
+/* La page attend que ses animations soient prêtes, pour éviter tout saut à l'arrivée */
+.js:not(.is-ready) [data-hero],
+.js:not(.is-ready) .bar {
+  visibility: hidden;
+}
+
+.js:not(.is-ready) main > :not(.intro) {
+  opacity: 0;
+}
+
+main > * {
+  transition: opacity 0.5s var(--ease);
 }

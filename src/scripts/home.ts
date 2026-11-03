@@ -338,12 +338,17 @@ function scrollScenes() {
 async function start() {
   await playIntro();
   const thread = document.querySelector<SVGSVGElement>('[data-thread]')!;
-  if (reduced) return staticThread(thread);
+  if (reduced) {
+    root.classList.add('is-ready');
+    return staticThread(thread);
+  }
   // Les lignes des titres se calculent avec les vraies polices
   await document.fonts.ready;
   startSmooth();
-
+  window.dispatchEvent(new Event('mecking:fit'));
   revealHero();
+  // Les éléments sont à leur point de départ : la page peut apparaître
+  root.classList.add('is-ready');
   scrollScenes();
   startThread(thread);
   if (matchMedia('(hover: hover) and (pointer: fine)').matches) startCursor();
