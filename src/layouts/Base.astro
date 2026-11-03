@@ -1,0 +1,127 @@
+---
+import '@fontsource-variable/bodoni-moda/opsz.css';
+import '@fontsource-variable/manrope';
+import '../styles/global.css';
+import Shot from '../components/Shot.astro';
+import { brand, nav } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="fr" data-season="hiver" data-mode="nuit">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <script is:inline>
+      // Saison et mode avant le premier affichage, pour éviter un éclair
+      (function () {
+        var d = document.documentElement;
+        var s, m;
+        try { s = localStorage.getItem('mecking-saison'); m = localStorage.getItem('mecking-mode'); } catch (e) {}
+        var month = new Date().getMonth();
+        d.dataset.season = s === 'ete' || s === 'hiver' ? s : month >= 4 && month <= 9 ? 'ete' : 'hiver';
+        d.dataset.mode = m === 'jour' || m === 'nuit' ? m : matchMedia('(prefers-color-scheme: light)').matches ? 'jour' : 'nuit';
+        d.classList.add('js');
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#contenu">Aller au contenu</a>
+
+    <header class="bar" data-bar>
+      <div class="bar__left">
+        <div class="switch" role="group" aria-label="Saison">
+          <button type="button" data-season-set="hiver">Hiver</button>
+          <button type="button" data-season-set="ete">Été</button>
+        </div>
+      </div>
+      <a class="bar__logo" href="/" aria-label={`${brand.name}, accueil`}>
+        <span class="mark mark--nom" aria-hidden="true"></span>
+      </a>
+      <div class="bar__right">
+        <button type="button" class="bar__mode" data-mode-toggle>
+          <span class="m-jour">Mode nuit</span><span class="m-nuit">Mode jour</span>
+        </button>
+        <button type="button" class="bar__menu" data-menu-open aria-expanded="false" aria-controls="menu">
+          Menu <span class="burger" aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="menu" id="menu" data-menu hidden>
+      <button type="button" class="menu__close" data-menu-close>Fermer</button>
+      <nav class="menu__nav" aria-label="Navigation principale">
+        <ul data-menu-list>
+          {nav.map((l) => (
+            <li class="menu__item">
+              <a
+                class="menu__link"
+                href={l.href}
+                aria-label={l.label}
+                aria-current={Astro.url.pathname.replace(/\/$/, '') === l.href ? 'page' : undefined}
+              >
+                <span class="roll" aria-hidden="true">
+                  {['roll__a', 'roll__b'].map((k) => (
+                    <span class={k}>{[...l.label].map((c, n) => <span style={`--i:${n}`}>{c === ' ' ? '\u00a0' : c}</span>)}</span>
+                  ))}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div class="menu__preview" aria-hidden="true">
+        {nav.map((l) => <Shot src={l.photo} sizes="40vw" class="menu__shot" />)}
+      </div>
+      <div class="menu__foot">
+        <div class="menu__prefs">
+          <div class="switch" role="group" aria-label="Saison">
+            <button type="button" data-season-set="hiver">Hiver</button>
+            <button type="button" data-season-set="ete">Été</button>
+          </div>
+          <button type="button" data-mode-toggle>
+            <span class="m-jour">Mode nuit</span><span class="m-nuit">Mode jour</span>
+          </button>
+        </div>
+        <p>Conciergerie privée basée à {brand.city}</p>
+      </div>
+    </div>
+
+    <main id="contenu">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <span class="mark mark--logo foot__logo" role="img" aria-label={brand.name}></span>
+      <nav aria-label="Pied de page">
+        <ul>
+          {nav.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          <li><a href="/mentions-legales">Mentions légales</a></li>
+          <li><a href="/confidentialite">Confidentialité</a></li>
+        </ul>
+      </nav>
+      <p class="foot__word" data-fit aria-hidden="true">Exclusive Travel</p>
+      <p class="foot__small">
+        © {year} {brand.name}. Photographies d’illustration :
+        <a href="https://unsplash.com" rel="noopener">Unsplash</a>.
+        <span class="foot__credit">Créé par <a href="https://legenienumerique.fr" rel="noopener">legenienumerique.fr</a></span>
+      </p>
+    </footer>
+
+    <div class="progress" aria-hidden="true"><span data-progress></span></div>
+
+    <script>
+      import '../scripts/chrome';
+    </script>
+  </body>
+</html>

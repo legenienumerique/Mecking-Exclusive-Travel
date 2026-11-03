@@ -1,0 +1,26 @@
+---
+/**
+ * En-tête des pages intérieures : mot géant, photo qui s'ouvre en plein écran
+ * au défilement, titre et chapeau. Animé par scripts/inner.ts.
+ */
+import Shot from './Shot.astro';
+import type { Photo, Season } from '../data/site';
+
+interface Props {
+  word: string;
+  title: string;
+  lead: string;
+  photo: Photo | Record<Season, Photo>;
+}
+const { word, title, lead, photo } = Astro.props;
+---
+<section class="hero hero--page" data-hero>
+  <div class="hero__window" data-hero-window>
+    <Shot src={photo} eager class="hero__shot" />
+  </div>
+  <p class="hero__word" data-fit aria-hidden="true">{word}</p>
+  <div class="hero__text">
+    <h1 class="hero__title">{title}</h1>
+    <p class="hero__lead">{lead}</p>
+  </div>
+</section>

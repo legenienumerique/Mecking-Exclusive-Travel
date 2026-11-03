@@ -1,0 +1,135 @@
+---
+import Base from '../layouts/Base.astro';
+import Shot from '../components/Shot.astro';
+import { ambiance, brand, destinations, hero, services, steps } from '../data/site';
+
+const manifest =
+  'Un séjour réussi tient à des détails que personne ne remarque. Nous nous occupons de chacun d’eux, avec discrétion.';
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// Mur des destinations : les cinq lieux au centre, l'ambiance autour
+const byName = (n: string) => destinations.find((d) => d.name === n)!;
+const wall = [
+  { photo: ambiance[0] },
+  byName('Alpes'),
+  { photo: ambiance[1] },
+  byName('Côte d’Azur'),
+  byName('Corse'),
+  byName('Bretagne'),
+  { photo: ambiance[2] },
+  byName('Provence'),
+  { photo: ambiance[3] },
+] as { photo: (typeof ambiance)[number]; name?: string; season?: string }[];
+---
+<Base
+  title={`${brand.name} | Conciergerie privée, montagne et littoral`}
+  description="Conciergerie privée basée à Lyon : hébergements d’exception, transferts privés, activités sur mesure et gastronomie, à la montagne l’hiver et sur le littoral l’été."
+>
+  <div class="intro" data-intro aria-hidden="true">
+    <canvas class="intro__canvas" data-emblem></canvas>
+    <span class="mark mark--symbole intro__flat"></span>
+    <p class="intro__line">Montagne l’hiver. Littoral l’été.</p>
+  </div>
+
+  <svg class="thread" data-thread aria-hidden="true" focusable="false"></svg>
+
+  <section class="hero" data-hero>
+    <div class="hero__window" data-hero-window>
+      <Shot src={hero} eager class="hero__shot" />
+    </div>
+    <p class="hero__word" data-fit aria-hidden="true">Mecking</p>
+    <div class="hero__tiles" aria-hidden="true">
+      {services.map((s, i) => (
+        <div class={`tile tile--${i + 1}`}>
+          <div class="tile__in">
+            <Shot src={s.photo} sizes="22vw" class="tile__shot" />
+          </div>
+        </div>
+      ))}
+    </div>
+    <div class="hero__text">
+      <h1 class="hero__title">L’exception, une demande à la fois</h1>
+      <p class="hero__lead">
+        Conciergerie privée basée à {brand.city}. Hébergements, transferts, activités et tables d’exception,
+        à la montagne l’hiver et sur le littoral l’été.
+      </p>
+    </div>
+  </section>
+
+  <section class="manifest" aria-label="Notre engagement">
+    <p class="manifest__text" data-words>{manifest}</p>
+  </section>
+
+  <section class="method" data-method aria-labelledby="method-title">
+    <h2 class="method__title" id="method-title">Notre façon de faire</h2>
+    <div class="method__stage">
+      <div class="method__photos">
+        {steps.map((s, i) => <Shot src={s.photo} sizes="(min-width: 900px) 40vw, 100vw" class:list={['method__photo', { 'is-on': i === 0 }]} />)}
+      </div>
+      <p class="method__count" aria-hidden="true">
+        <span data-count>01</span> / {pad(steps.length)}
+      </p>
+      <ol class="method__steps">
+        {steps.map((s, i) => (
+          <li class:list={['method__step', { 'is-on': i === 0 }]}>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="services" aria-labelledby="services-title">
+    <header class="services__head">
+      <h2 id="services-title">Quatre prestations, chacune à part</h2>
+      <p>Chaque prestation se demande séparément, selon votre besoin. Vous choisissez ce que vous nous confiez.</p>
+    </header>
+    <ul class="plist" data-plist>
+      {services.map((s) => <li><a href={`#${s.slug}`}>{s.title}</a></li>)}
+    </ul>
+    <div class="preview" data-preview aria-hidden="true">
+      {services.map((s) => <Shot src={s.photo} sizes="24vw" class="preview__shot" />)}
+    </div>
+    {services.map((s, i) => (
+      <article class:list={['service', { 'service--flip': i % 2 }]} id={s.slug}>
+        <Shot src={s.photo} sizes="(min-width: 900px) 55vw, 100vw" class="service__shot" />
+        <div class="service__text">
+          <h3 class="service__title">{s.title}</h3>
+          <p>{s.text}</p>
+          <a class="btn" href={`/contact?prestation=${s.slug}`}>{s.cta}</a>
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <section class="dest" data-dest aria-labelledby="dest-title">
+    <div class="dest__wall">
+      <div class="dest__grid" data-wall>
+        {wall.map((w) => (
+          <article class:list={['dest__tile', { 'dest__tile--place': w.name }]}>
+            <Shot src={w.photo} sizes="(min-width: 900px) 30vw, 50vw" class="dest__shot" />
+            {w.name && <h3 class="dest__name">{w.name}</h3>}
+            {w.season && <p class="dest__season">{w.season === 'hiver' ? 'Hiver' : 'Été'}</p>}
+          </article>
+        ))}
+      </div>
+    </div>
+    <div class="dest__head">
+      <h2 id="dest-title">Où nous intervenons</h2>
+      <p>La montagne l’hiver, le littoral l’été. D’autres destinations sont possibles, selon votre demande.</p>
+    </div>
+  </section>
+
+  <section class="end" data-tone="photo">
+    <Shot src={hero} class="end__shot" />
+    <div class="end__text">
+      <h2 class="end__title">Une envie <span class="nowrap">précise ?</span> Parlons-en.</h2>
+      <a class="btn btn--light" href="/contact">Faire une demande</a>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/home';
+  </script>
+</Base>

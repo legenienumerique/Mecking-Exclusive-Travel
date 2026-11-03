@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Shot from '../components/Shot.astro';
+import { hero, serviceDetails, services } from '../data/site';
+---
+<Base
+  title="Prestations | Mecking Exclusive Travel"
+  description="Hébergements d’exception, transferts et chauffeurs privés, activités sur mesure, gastronomie et expériences privées : quatre prestations, chacune demandée séparément."
+>
+  <PageHero
+    word="Prestations"
+    title="Quatre prestations, chacune à part"
+    lead="Vous nous confiez ce dont vous avez besoin, et seulement cela. Chaque prestation se demande séparément."
+    photo={hero}
+  />
+
+  <section class="block">
+    <div class="block__head">
+      <h2 data-lines>Une demande, une prestation</h2>
+      <p>
+        Nous ne vendons pas de séjour tout compris. Vous choisissez la prestation qui vous intéresse,
+        nous l’étudions avec vous, puis nous la mettons en place.
+      </p>
+    </div>
+    <p class="todo">Descriptions détaillées, modalités et limites de chaque prestation : à fournir par le client.</p>
+  </section>
+
+  {services.map((s, i) => (
+    <article class:list={['service', { 'service--flip': i % 2 }]} id={s.slug}>
+      <Shot src={s.photo} sizes="(min-width: 900px) 55vw, 100vw" class="service__shot" data-shape />
+      <div class="service__text">
+        <h2 class="service__title" data-lines>{s.title}</h2>
+        <p>{s.text}</p>
+        <ul class="ticks" data-rise>
+          {serviceDetails[s.slug].map((d) => <li>{d}</li>)}
+        </ul>
+        <a class="btn" href={`/contact?prestation=${s.slug}`}>{s.cta}</a>
+      </div>
+    </article>
+  ))}
+
+  <section class="end end--plain">
+    <div class="end__text">
+      <h2 class="end__title" data-lines>Une prestation en tête ?</h2>
+      <a class="btn" href="/contact">Faire une demande</a>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/inner';
+  </script>
+</Base>

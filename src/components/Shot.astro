@@ -1,0 +1,37 @@
+---
+/**
+ * Photo étalonnée. Avec deux saisons, les deux images sont dans le HTML
+ * et le CSS affiche celle de la saison choisie.
+ */
+import { photo, srcset, type Photo, type Season } from '../data/site';
+
+interface Props {
+  src: Photo | Record<Season, Photo>;
+  sizes?: string;
+  ratio?: number;
+  eager?: boolean;
+  class?: string;
+  [key: `data-${string}`]: unknown;
+}
+const { src, sizes = '100vw', ratio, eager = false, class: cls = '', ...rest } = Astro.props;
+const bySeason = 'hiver' in src;
+const list: [Photo, string][] = bySeason
+  ? src.hiver.id === src.ete.id
+    ? [[src.hiver, '']]
+    : [[src.hiver, 's-hiver'], [src.ete, 's-ete']]
+  : [[src as Photo, '']];
+---
+<div class:list={['shot', cls]} {...rest}>
+  {list.map(([p, s]) => (
+    <img
+      class={s}
+      src={photo(p.id, 1400, ratio ? Math.round(1400 * ratio) : undefined)}
+      srcset={srcset(p.id, ratio)}
+      sizes={sizes}
+      alt={p.alt}
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : undefined}
+      decoding="async"
+    />
+  ))}
+</div>

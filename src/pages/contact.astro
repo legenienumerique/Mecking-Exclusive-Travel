@@ -1,0 +1,90 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { brand, destinations, hero, services } from '../data/site';
+---
+<Base
+  title="Contact | Mecking Exclusive Travel"
+  description="Faites une demande pour une prestation précise : hébergement, transfert, activité ou expérience gastronomique. Réponse personnalisée."
+>
+  <PageHero
+    word="Contact"
+    title="Parlez-nous de votre demande"
+    lead="Une prestation précise, une date, une envie : quelques lignes suffisent pour commencer."
+    photo={hero}
+  />
+
+  <section class="contact">
+    <aside class="contact__aside" data-rise>
+      <h2>Coordonnées</h2>
+      <p>Conciergerie privée basée à {brand.city}.</p>
+      <p class="todo">Téléphone, e-mail et horaires de réponse : à fournir par le client.</p>
+      <p class="contact__note">
+        Une demande porte sur une prestation à la fois. Nous ne proposons pas de forfait.
+      </p>
+    </aside>
+
+    <form class="form" data-form novalidate>
+      <div class="form__row">
+        <label>Nom et prénom<input name="nom" autocomplete="name" required /></label>
+        <label>E-mail<input name="email" type="email" autocomplete="email" required /></label>
+      </div>
+      <div class="form__row">
+        <label>Téléphone <span class="opt">(facultatif)</span><input name="telephone" type="tel" autocomplete="tel" /></label>
+        <label>
+          Prestation recherchée
+          <select name="prestation" required data-prefill="prestation">
+            <option value="">Choisir</option>
+            {services.map((s) => <option value={s.slug}>{s.title}</option>)}
+            <option value="autre">Autre demande</option>
+          </select>
+        </label>
+      </div>
+      <div class="form__row">
+        <label>
+          Destination souhaitée
+          <input name="destination" list="destinations" data-prefill="destination" />
+          <datalist id="destinations">
+            {destinations.map((d) => <option value={d.name} />)}
+          </datalist>
+        </label>
+        <label>Période ou dates envisagées<input name="periode" placeholder="Ex. : semaine du 15 février" /></label>
+      </div>
+      <label class="form__small">Nombre de personnes <span class="opt">(facultatif)</span><input name="personnes" type="number" min="1" inputmode="numeric" /></label>
+      <label>Votre message<textarea name="message" rows="5" required></textarea></label>
+      <label class="form__check">
+        <input type="checkbox" name="consentement" required />
+        <span>
+          J’accepte que mes informations soient utilisées pour répondre à ma demande.
+          <a href="/confidentialite">En savoir plus</a>
+        </span>
+      </label>
+      <button class="btn" type="submit">Envoyer la demande</button>
+      <p class="form__status" data-status role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <script>
+    import '../scripts/inner';
+
+    // Préremplit la prestation ou la destination depuis le lien suivi
+    const params = new URLSearchParams(location.search);
+    document.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-prefill]').forEach((f) => {
+      const v = params.get(f.dataset.prefill!);
+      if (v) f.value = v;
+    });
+
+    // Maquette : l'envoi n'est pas encore branché
+    const form = document.querySelector<HTMLFormElement>('[data-form]')!;
+    const status = document.querySelector<HTMLElement>('[data-status]')!;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        status.textContent = 'Merci de remplir les champs obligatoires et de cocher la case de consentement.';
+        form.reportValidity();
+        return;
+      }
+      status.textContent = 'Maquette : l’envoi sera activé à la mise en ligne. Votre demande n’a pas été transmise.';
+    });
+  </script>
+</Base>
