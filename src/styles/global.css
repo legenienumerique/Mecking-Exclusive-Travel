@@ -109,17 +109,17 @@ p {
 }
 
 .mark--nom {
-  --src: url('/brand/nom.png');
+  --src: url('../assets/brand/nom.png');
   aspect-ratio: 777 / 155;
 }
 
 .mark--logo {
-  --src: url('/brand/logo.png');
+  --src: url('../assets/brand/logo.png');
   aspect-ratio: 777 / 284;
 }
 
 .mark--symbole {
-  --src: url('/brand/symbole.png');
+  --src: url('../assets/brand/symbole.png');
   aspect-ratio: 218 / 95;
 }
 

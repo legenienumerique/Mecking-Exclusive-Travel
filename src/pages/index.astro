@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Shot from '../components/Shot.astro';
-import { ambiance, brand, destinations, hero, services, steps } from '../data/site';
+import { ambiance, brand, destinations, hero, services, steps, link } from '../data/site';
 
 const manifest =
   'Un séjour réussi tient à des détails que personne ne remarque. Nous nous occupons de chacun d’eux, avec discrétion.';
@@ -97,7 +97,7 @@ const wall = [
         <div class="service__text">
           <h3 class="service__title">{s.title}</h3>
           <p>{s.text}</p>
-          <a class="btn" href={`/contact?prestation=${s.slug}`}>{s.cta}</a>
+          <a class="btn" href={link(`/contact?prestation=${s.slug}`)}>{s.cta}</a>
         </div>
       </article>
     ))}
@@ -125,7 +125,7 @@ const wall = [
     <Shot src={hero} class="end__shot" />
     <div class="end__text">
       <h2 class="end__title">Une envie <span class="nowrap">précise ?</span> Parlons-en.</h2>
-      <a class="btn btn--light" href="/contact">Faire une demande</a>
+      <a class="btn btn--light" href={link("/contact")}>Faire une demande</a>
     </div>
   </section>
 

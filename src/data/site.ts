@@ -17,6 +17,11 @@ export function photo(id: string, width: number, height?: number): string {
   return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&q=80&w=${width}${h}`;
 }
 
+/** Lien interne, avec le dossier du site (ex. GitHub Pages). */
+export function link(path: string): string {
+  return import.meta.env.BASE_URL.replace(/\/$/, '') + path;
+}
+
 export function srcset(id: string, ratio?: number): string {
   return [800, 1400, 2200]
     .map((w) => `${photo(id, w, ratio ? Math.round(w * ratio) : undefined)} ${w}w`)

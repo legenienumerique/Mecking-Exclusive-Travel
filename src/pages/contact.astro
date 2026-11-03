@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
-import { brand, destinations, hero, services } from '../data/site';
+import { brand, destinations, hero, services, link } from '../data/site';
 ---
 <Base
   title="Contact | Mecking Exclusive Travel"
@@ -56,7 +56,7 @@ import { brand, destinations, hero, services } from '../data/site';
         <input type="checkbox" name="consentement" required />
         <span>
           J’accepte que mes informations soient utilisées pour répondre à ma demande.
-          <a href="/confidentialite">En savoir plus</a>
+          <a href={link("/confidentialite")}>En savoir plus</a>
         </span>
       </label>
       <button class="btn" type="submit">Envoyer la demande</button>

@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
 import Shot from '../components/Shot.astro';
-import { hero, serviceDetails, services } from '../data/site';
+import { hero, serviceDetails, services, link } from '../data/site';
 ---
 <Base
   title="Prestations | Mecking Exclusive Travel"
@@ -35,7 +35,7 @@ import { hero, serviceDetails, services } from '../data/site';
         <ul class="ticks" data-rise>
           {serviceDetails[s.slug].map((d) => <li>{d}</li>)}
         </ul>
-        <a class="btn" href={`/contact?prestation=${s.slug}`}>{s.cta}</a>
+        <a class="btn" href={link(`/contact?prestation=${s.slug}`)}>{s.cta}</a>
       </div>
     </article>
   ))}
@@ -43,7 +43,7 @@ import { hero, serviceDetails, services } from '../data/site';
   <section class="end end--plain">
     <div class="end__text">
       <h2 class="end__title" data-lines>Une prestation en tête ?</h2>
-      <a class="btn" href="/contact">Faire une demande</a>
+      <a class="btn" href={link("/contact")}>Faire une demande</a>
     </div>
   </section>
 

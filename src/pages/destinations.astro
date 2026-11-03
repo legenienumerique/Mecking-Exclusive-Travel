@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
 import Shot from '../components/Shot.astro';
-import { destinationText, destinations, hero } from '../data/site';
+import { destinationText, destinations, hero, link } from '../data/site';
 
 const winter = destinations.filter((d) => d.season === 'hiver');
 const summer = destinations.filter((d) => d.season === 'ete');
@@ -33,7 +33,7 @@ const summer = destinations.filter((d) => d.season === 'ete');
         <p class="kicker">Hiver</p>
         <h3 class="service__title" data-lines>{d.name}</h3>
         <p>{destinationText[d.name]}</p>
-        <a class="btn" href={`/contact?destination=${encodeURIComponent(d.name)}`}>Parler de ce séjour</a>
+        <a class="btn" href={link(`/contact?destination=${encodeURIComponent(d.name)}`)}>Parler de ce séjour</a>
       </div>
     </article>
   ))}
@@ -52,7 +52,7 @@ const summer = destinations.filter((d) => d.season === 'ete');
         <p class="kicker">Été</p>
         <h3 class="service__title" data-lines>{d.name}</h3>
         <p>{destinationText[d.name]}</p>
-        <a class="btn" href={`/contact?destination=${encodeURIComponent(d.name)}`}>Parler de ce séjour</a>
+        <a class="btn" href={link(`/contact?destination=${encodeURIComponent(d.name)}`)}>Parler de ce séjour</a>
       </div>
     </article>
   ))}
@@ -60,7 +60,7 @@ const summer = destinations.filter((d) => d.season === 'ete');
   <section class="end end--plain">
     <div class="end__text">
       <h2 class="end__title" data-lines>Une autre destination en tête ?</h2>
-      <a class="btn" href="/contact">Nous en parler</a>
+      <a class="btn" href={link("/contact")}>Nous en parler</a>
     </div>
   </section>
 

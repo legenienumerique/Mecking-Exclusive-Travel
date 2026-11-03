@@ -3,7 +3,7 @@ import '@fontsource-variable/bodoni-moda/opsz.css';
 import '@fontsource-variable/manrope';
 import '../styles/global.css';
 import Shot from '../components/Shot.astro';
-import { brand, nav } from '../data/site';
+import { brand, nav, link } from '../data/site';
 
 interface Props {
   title: string;
@@ -20,7 +20,7 @@ const year = new Date().getFullYear();
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="robots" content="noindex" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={link("/favicon.svg")} />
     <link rel="preconnect" href="https://images.unsplash.com" />
     <script is:inline>
       // Saison et mode avant le premier affichage, pour éviter un éclair
@@ -45,7 +45,7 @@ const year = new Date().getFullYear();
           <button type="button" data-season-set="ete">Été</button>
         </div>
       </div>
-      <a class="bar__logo" href="/" aria-label={`${brand.name}, accueil`}>
+      <a class="bar__logo" href={link("/")} aria-label={`${brand.name}, accueil`}>
         <span class="mark mark--nom" aria-hidden="true"></span>
       </a>
       <div class="bar__right">
@@ -66,9 +66,9 @@ const year = new Date().getFullYear();
             <li class="menu__item">
               <a
                 class="menu__link"
-                href={l.href}
+                href={link(l.href)}
                 aria-label={l.label}
-                aria-current={Astro.url.pathname.replace(/\/$/, '') === l.href ? 'page' : undefined}
+                aria-current={Astro.url.pathname.replace(/\/$/, '') === link(l.href) ? 'page' : undefined}
               >
                 <span class="roll" aria-hidden="true">
                   {['roll__a', 'roll__b'].map((k) => (
@@ -105,9 +105,9 @@ const year = new Date().getFullYear();
       <span class="mark mark--logo foot__logo" role="img" aria-label={brand.name}></span>
       <nav aria-label="Pied de page">
         <ul>
-          {nav.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
-          <li><a href="/mentions-legales">Mentions légales</a></li>
-          <li><a href="/confidentialite">Confidentialité</a></li>
+          {nav.map((l) => <li><a href={link(l.href)}>{l.label}</a></li>)}
+          <li><a href={link("/mentions-legales")}>Mentions légales</a></li>
+          <li><a href={link("/confidentialite")}>Confidentialité</a></li>
         </ul>
       </nav>
       <p class="foot__word" data-fit aria-hidden="true">Exclusive Travel</p>

@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
 import Shot from '../components/Shot.astro';
-import { ambiance, brand, values } from '../data/site';
+import { ambiance, brand, values, link } from '../data/site';
 ---
 <Base
   title="À propos | Mecking Exclusive Travel"
@@ -47,7 +47,7 @@ import { ambiance, brand, values } from '../data/site';
   <section class="end end--plain">
     <div class="end__text">
       <h2 class="end__title" data-lines>Faisons connaissance.</h2>
-      <a class="btn" href="/contact">Prendre contact</a>
+      <a class="btn" href={link("/contact")}>Prendre contact</a>
     </div>
   </section>
 
