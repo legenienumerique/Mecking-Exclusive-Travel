@@ -4,6 +4,7 @@
  * et le CSS affiche celle de la saison choisie.
  */
 import { photo, srcset, type Photo, type Season } from '../data/site';
+import type { Lang } from '../i18n';
 
 interface Props {
   src: Photo | Record<Season, Photo>;
@@ -14,6 +15,7 @@ interface Props {
   [key: `data-${string}`]: unknown;
 }
 const { src, sizes = '100vw', ratio, eager = false, class: cls = '', ...rest } = Astro.props;
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
 const bySeason = 'hiver' in src;
 const list: [Photo, string][] = bySeason
   ? src.hiver.id === src.ete.id
@@ -28,7 +30,7 @@ const list: [Photo, string][] = bySeason
       src={photo(p.id, 1400, ratio ? Math.round(1400 * ratio) : undefined)}
       srcset={srcset(p.id, ratio)}
       sizes={sizes}
-      alt={p.alt}
+      alt={p.alt[lang]}
       loading={eager ? 'eager' : 'lazy'}
       fetchpriority={eager ? 'high' : undefined}
       decoding="async"

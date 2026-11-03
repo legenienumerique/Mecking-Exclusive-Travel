@@ -1,0 +1,70 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Shot from '../components/Shot.astro';
+import { hero, services } from '../data/site';
+import { href, ui, type L, type Lang } from '../i18n';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = (l: L) => l[lang];
+const c = {
+  title: { fr: 'Prestations | Mecking Exclusive Travel', en: 'Services | Mecking Exclusive Travel' },
+  description: {
+    fr: 'Hébergements d’exception, transferts et chauffeurs privés, activités sur mesure, gastronomie et expériences privées : quatre prestations, chacune demandée séparément.',
+    en: 'Exceptional homes, private transfers and drivers, tailored activities, dining and private experiences: four services, each requested separately.',
+  },
+  word: { fr: 'Prestations', en: 'Services' },
+  h1: { fr: 'Quatre prestations, chacune à part', en: 'Four services, each on its own' },
+  lead: {
+    fr: 'Vous nous confiez ce dont vous avez besoin, et seulement cela. Chaque prestation se demande séparément.',
+    en: 'You entrust us with what you need, and only that. Each service is requested separately.',
+  },
+  blockTitle: { fr: 'Une demande, une prestation', en: 'One request, one service' },
+  blockText: {
+    fr: 'Nous ne vendons pas de séjour tout compris. Vous choisissez la prestation qui vous intéresse, nous l’étudions avec vous, puis nous la mettons en place.',
+    en: 'We do not sell all-inclusive stays. You choose the service you are interested in, we look at it with you, then we put it in place.',
+  },
+  todo: {
+    fr: 'Descriptions détaillées, modalités et limites de chaque prestation',
+    en: 'Detailed descriptions, terms and limits of each service',
+  },
+  endTitle: { fr: 'Une prestation en tête ?', en: 'A service in mind?' },
+  request: { fr: 'Faire une demande', en: 'Make a request' },
+} satisfies Record<string, L>;
+---
+<Base title={t(c.title)} description={t(c.description)} page="services">
+  <PageHero word={t(c.word)} title={t(c.h1)} lead={t(c.lead)} photo={hero} />
+
+  <section class="block">
+    <div class="block__head">
+      <h2 data-lines>{t(c.blockTitle)}</h2>
+      <p>{t(c.blockText)}</p>
+    </div>
+    <p class="todo">{t(c.todo)} : {t(ui.todo)}.</p>
+  </section>
+
+  {services.map((s, i) => (
+    <article class:list={['service', { 'service--flip': i % 2 }]} id={s.slug}>
+      <Shot src={s.photo} sizes="(min-width: 900px) 55vw, 100vw" class="service__shot" data-shape />
+      <div class="service__text">
+        <h2 class="service__title" data-lines>{t(s.title)}</h2>
+        <p>{t(s.text)}</p>
+        <ul class="ticks" data-rise>
+          {s.details.map((d) => <li>{t(d)}</li>)}
+        </ul>
+        <a class="btn" href={href('contact', lang, `?prestation=${s.slug}`)}>{t(s.cta)}</a>
+      </div>
+    </article>
+  ))}
+
+  <section class="end end--plain">
+    <div class="end__text">
+      <h2 class="end__title" data-lines>{t(c.endTitle)}</h2>
+      <a class="btn" href={href('contact', lang)}>{t(c.request)}</a>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/inner';
+  </script>
+</Base>

@@ -1551,3 +1551,79 @@ main {
     clip-path: inset(36% 8% 18% 8%);
   }
 }
+
+/* Le personnage remplace la flèche de la souris, sauf dans les champs de saisie */
+html.has-rider,
+html.has-rider * {
+  cursor: none !important;
+}
+
+html.has-rider input,
+html.has-rider textarea,
+html.has-rider select {
+  cursor: text !important;
+}
+
+/* Langue : choix à l'entrée, puis lien FR / EN dans l'en-tête et le menu */
+.intro__lang {
+  position: absolute;
+  bottom: 9vh;
+  left: 0;
+  right: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  opacity: 0;
+}
+
+.intro--choose .intro__lang {
+  display: flex;
+}
+
+.intro--choose .intro__line {
+  bottom: calc(9vh + 5.5rem);
+}
+
+.intro__lang button {
+  padding: 0.6rem 0.2rem;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  cursor: pointer;
+  transition: font-style 0s, opacity 0.4s;
+}
+
+.intro__lang:hover button {
+  opacity: 0.4;
+}
+
+.intro__lang button:hover,
+.intro__lang button:focus-visible {
+  opacity: 1;
+  font-style: italic;
+}
+
+.intro__sep {
+  width: 1px;
+  height: 2rem;
+  background: var(--line);
+}
+
+.bar__lang {
+  padding: 0.5rem 0;
+  text-decoration: none;
+  letter-spacing: 0.08em;
+}
+
+.bar__lang:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.45em;
+}
+
+.menu__lang {
+  color: var(--fg);
+  letter-spacing: 0.04em;
+}

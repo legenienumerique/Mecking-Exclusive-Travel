@@ -35,6 +35,24 @@ function endIntro(instant = false) {
   });
 }
 
+function storedLang() {
+  try {
+    return localStorage.getItem('mecking-lang');
+  } catch {
+    return null;
+  }
+}
+
+/** Première visite : le visiteur choisit sa langue sous le symbole. */
+function askLang(): Promise<string> {
+  const box = intro.querySelector<HTMLElement>('[data-lang-choice]')!;
+  intro.classList.add('intro--choose');
+  gsap.fromTo(box, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: reduced ? 0 : 1.2, delay: reduced ? 0 : 1.4, ease: 'expo.out' });
+  return new Promise((resolve) =>
+    box.querySelectorAll<HTMLButtonElement>('[data-choose]').forEach((b) => b.addEventListener('click', () => resolve(b.dataset.choose!))),
+  );
+}
+
 async function playIntro(): Promise<void> {
   let seen = false;
   try {
@@ -42,11 +60,46 @@ async function playIntro(): Promise<void> {
   } catch {
     /* rien */
   }
-  if (reduced || seen) return endIntro(true);
+  const mustChoose = !storedLang();
+  if (!mustChoose && (reduced || seen)) return endIntro(true);
 
   document.body.style.overflow = 'hidden';
   intro.style.clipPath = 'inset(0 0 0% 0)';
   const line = intro.querySelector<HTMLElement>('.intro__line')!;
+
+  let show: Promise<void>;
+  try {
+    if (reduced) throw new Error('mouvement réduit');
+    const { playEmblem } = await import('./emblem');
+    show = playEmblem(intro.querySelector('canvas')!, root.dataset.mode === 'jour');
+  } catch {
+    intro.classList.add('intro--flat');
+    show = new Promise((r) => {
+      gsap.fromTo('.intro__flat', { opacity: 0 }, { opacity: 1, duration: reduced ? 0 : 1.4, ease: 'power2.out', onComplete: () => r() });
+    });
+  }
+  gsap.to(line, { opacity: 1, duration: reduced ? 0 : 1.2, delay: reduced ? 0 : 1.6, ease: 'power2.out' });
+
+  if (mustChoose) {
+    const lang = await askLang();
+    try {
+      localStorage.setItem('mecking-lang', lang);
+    } catch {
+      /* navigation privée */
+    }
+    if (lang !== intro.dataset.lang) {
+      // L'autre langue : on y part sans rejouer l'entrée
+      try {
+        sessionStorage.setItem('mecking-intro', '1');
+      } catch {
+        /* rien */
+      }
+      location.href = intro.dataset.there!;
+      return new Promise(() => {});
+    }
+    return endIntro(reduced);
+  }
+
   let stop = () => {};
   const skip = new Promise<void>((resolve) => {
     const go = () => resolve();
@@ -54,18 +107,6 @@ async function playIntro(): Promise<void> {
     events.forEach((e) => window.addEventListener(e, go, { once: true, passive: true }));
     stop = () => events.forEach((e) => window.removeEventListener(e, go));
   });
-
-  let show: Promise<void>;
-  try {
-    const { playEmblem } = await import('./emblem');
-    show = playEmblem(intro.querySelector('canvas')!, root.dataset.mode === 'jour');
-  } catch {
-    intro.classList.add('intro--flat');
-    show = new Promise((r) => {
-      gsap.fromTo('.intro__flat', { opacity: 0 }, { opacity: 1, duration: 1.4, ease: 'power2.out', onComplete: () => r() });
-    });
-  }
-  gsap.to(line, { opacity: 1, duration: 1.2, delay: 1.6, ease: 'power2.out' });
   await Promise.race([show.then(() => new Promise<void>((r) => setTimeout(r, 900))), skip]);
   stop();
   await endIntro();

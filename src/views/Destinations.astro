@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Shot from '../components/Shot.astro';
+import { destinations, hero } from '../data/site';
+import { href, ui, type L, type Lang } from '../i18n';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = (l: L) => l[lang];
+const winter = destinations.filter((d) => d.season === 'hiver');
+const summer = destinations.filter((d) => d.season === 'ete');
+const c = {
+  title: { fr: 'Destinations | Mecking Exclusive Travel', en: 'Destinations | Mecking Exclusive Travel' },
+  description: {
+    fr: 'La montagne l’hiver, le littoral l’été : Alpes, Côte d’Azur, Bretagne, Corse et Provence. D’autres destinations sont possibles selon votre demande.',
+    en: 'The mountains in winter, the coast in summer: the Alps, the French Riviera, Brittany, Corsica and Provence. Other destinations are possible on request.',
+  },
+  h1: { fr: 'La montagne l’hiver, le littoral l’été', en: 'The mountains in winter, the coast in summer' },
+  lead: {
+    fr: 'Deux saisons, deux univers. D’autres destinations sont possibles : il suffit de nous en parler.',
+    en: 'Two seasons, two worlds. Other destinations are possible: just tell us about them.',
+  },
+  winterTitle: { fr: 'Hiver, la montagne', en: 'Winter, the mountains' },
+  winterText: {
+    fr: 'Les Alpes et leurs grands domaines, pour un séjour entre glisse, calme et bonnes tables.',
+    en: 'The Alps and their great ski areas, for a stay of slopes, calm and good food.',
+  },
+  todo: { fr: 'Stations et massifs précis à mettre en avant', en: 'Specific resorts and ranges to feature' },
+  summerTitle: { fr: 'Été, le littoral', en: 'Summer, the coast' },
+  summerText: {
+    fr: 'Côte d’Azur, Bretagne, Corse et Provence : quatre façons de vivre l’été au bord de l’eau.',
+    en: 'The French Riviera, Brittany, Corsica and Provence: four ways to spend the summer by the water.',
+  },
+  talk: { fr: 'Parler de ce séjour', en: 'Talk about this stay' },
+  endTitle: { fr: 'Une autre destination en tête ?', en: 'Another destination in mind?' },
+  endBtn: { fr: 'Nous en parler', en: 'Tell us about it' },
+} satisfies Record<string, L>;
+---
+<Base title={t(c.title)} description={t(c.description)} page="destinations">
+  <PageHero word="Destinations" title={t(c.h1)} lead={t(c.lead)} photo={hero} />
+
+  <section class="block" id="hiver">
+    <div class="block__head">
+      <h2 data-lines>{t(c.winterTitle)}</h2>
+      <p>{t(c.winterText)}</p>
+    </div>
+    <p class="todo">{t(c.todo)} : {t(ui.todo)}.</p>
+  </section>
+
+  {winter.map((d) => (
+    <article class="service" id={d.key}>
+      <Shot src={d.photo} sizes="(min-width: 900px) 55vw, 100vw" class="service__shot" data-shape />
+      <div class="service__text">
+        <p class="kicker">{t(ui.hiver)}</p>
+        <h3 class="service__title" data-lines>{t(d.name)}</h3>
+        <p>{t(d.text)}</p>
+        <a class="btn" href={href('contact', lang, `?destination=${encodeURIComponent(t(d.name))}`)}>{t(c.talk)}</a>
+      </div>
+    </article>
+  ))}
+
+  <section class="block" id="ete">
+    <div class="block__head">
+      <h2 data-lines>{t(c.summerTitle)}</h2>
+      <p>{t(c.summerText)}</p>
+    </div>
+  </section>
+
+  {summer.map((d, i) => (
+    <article class:list={['service', { 'service--flip': i % 2 === 0 }]} id={d.key}>
+      <Shot src={d.photo} sizes="(min-width: 900px) 55vw, 100vw" class="service__shot" data-shape />
+      <div class="service__text">
+        <p class="kicker">{t(ui.ete)}</p>
+        <h3 class="service__title" data-lines>{t(d.name)}</h3>
+        <p>{t(d.text)}</p>
+        <a class="btn" href={href('contact', lang, `?destination=${encodeURIComponent(t(d.name))}`)}>{t(c.talk)}</a>
+      </div>
+    </article>
+  ))}
+
+  <section class="end end--plain">
+    <div class="end__text">
+      <h2 class="end__title" data-lines>{t(c.endTitle)}</h2>
+      <a class="btn" href={href('contact', lang)}>{t(c.endBtn)}</a>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/inner';
+  </script>
+</Base>

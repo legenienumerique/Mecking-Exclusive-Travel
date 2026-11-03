@@ -1,0 +1,129 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { brand, destinations, hero, services } from '../data/site';
+import { href, ui, type L, type Lang } from '../i18n';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = (l: L) => l[lang];
+const c = {
+  title: { fr: 'Contact | Mecking Exclusive Travel', en: 'Contact | Mecking Exclusive Travel' },
+  description: {
+    fr: 'Faites une demande pour une prestation précise : hébergement, transfert, activité ou expérience gastronomique. Réponse personnalisée.',
+    en: 'Make a request for a specific service: a home, a transfer, an activity or a dining experience. A personal reply.',
+  },
+  h1: { fr: 'Parlez-nous de votre demande', en: 'Tell us about your request' },
+  lead: {
+    fr: 'Une prestation précise, une date, une envie : quelques lignes suffisent pour commencer.',
+    en: 'A specific service, a date, a wish: a few lines are enough to get started.',
+  },
+  details: { fr: 'Coordonnées', en: 'Contact details' },
+  based: { fr: `Conciergerie privée basée à ${brand.city}.`, en: `Private concierge based in ${brand.city}.` },
+  todo: { fr: 'Téléphone, e-mail et horaires de réponse', en: 'Phone, e-mail and response hours' },
+  note: {
+    fr: 'Une demande porte sur une prestation à la fois. Nous ne proposons pas de forfait.',
+    en: 'Each request covers one service at a time. We do not offer packages.',
+  },
+  name: { fr: 'Nom et prénom', en: 'Full name' },
+  email: { fr: 'E-mail', en: 'E-mail' },
+  phone: { fr: 'Téléphone', en: 'Phone' },
+  optional: { fr: '(facultatif)', en: '(optional)' },
+  service: { fr: 'Prestation recherchée', en: 'Service wanted' },
+  choose: { fr: 'Choisir', en: 'Choose' },
+  otherReq: { fr: 'Autre demande', en: 'Other request' },
+  dest: { fr: 'Destination souhaitée', en: 'Destination' },
+  period: { fr: 'Période ou dates envisagées', en: 'Period or dates' },
+  periodEx: { fr: 'Ex. : semaine du 15 février', en: 'E.g. week of 15 February' },
+  people: { fr: 'Nombre de personnes', en: 'Number of people' },
+  message: { fr: 'Votre message', en: 'Your message' },
+  consent: {
+    fr: 'J’accepte que mes informations soient utilisées pour répondre à ma demande.',
+    en: 'I agree that my information may be used to reply to my request.',
+  },
+  more: { fr: 'En savoir plus', en: 'Learn more' },
+  send: { fr: 'Envoyer la demande', en: 'Send the request' },
+  invalid: {
+    fr: 'Merci de remplir les champs obligatoires et de cocher la case de consentement.',
+    en: 'Please fill in the required fields and tick the consent box.',
+  },
+  mock: {
+    fr: 'Maquette : l’envoi sera activé à la mise en ligne. Votre demande n’a pas été transmise.',
+    en: 'Mock-up: sending will be enabled at launch. Your request has not been sent.',
+  },
+} satisfies Record<string, L>;
+---
+<Base title={t(c.title)} description={t(c.description)} page="contact">
+  <PageHero word="Contact" title={t(c.h1)} lead={t(c.lead)} photo={hero} />
+
+  <section class="contact">
+    <aside class="contact__aside" data-rise>
+      <h2>{t(c.details)}</h2>
+      <p>{t(c.based)}</p>
+      <p class="todo">{t(c.todo)} : {t(ui.todo)}.</p>
+      <p class="contact__note">{t(c.note)}</p>
+    </aside>
+
+    <form class="form" data-form data-invalid={t(c.invalid)} data-mock={t(c.mock)} novalidate>
+      <div class="form__row">
+        <label>{t(c.name)}<input name="nom" autocomplete="name" required /></label>
+        <label>{t(c.email)}<input name="email" type="email" autocomplete="email" required /></label>
+      </div>
+      <div class="form__row">
+        <label>{t(c.phone)} <span class="opt">{t(c.optional)}</span><input name="telephone" type="tel" autocomplete="tel" /></label>
+        <label>
+          {t(c.service)}
+          <select name="prestation" required data-prefill="prestation">
+            <option value="">{t(c.choose)}</option>
+            {services.map((s) => <option value={s.slug}>{t(s.title)}</option>)}
+            <option value="autre">{t(c.otherReq)}</option>
+          </select>
+        </label>
+      </div>
+      <div class="form__row">
+        <label>
+          {t(c.dest)}
+          <input name="destination" list="destinations" data-prefill="destination" />
+          <datalist id="destinations">
+            {destinations.map((d) => <option value={t(d.name)} />)}
+          </datalist>
+        </label>
+        <label>{t(c.period)}<input name="periode" placeholder={t(c.periodEx)} /></label>
+      </div>
+      <label class="form__small">{t(c.people)} <span class="opt">{t(c.optional)}</span><input name="personnes" type="number" min="1" inputmode="numeric" /></label>
+      <label>{t(c.message)}<textarea name="message" rows="5" required></textarea></label>
+      <label class="form__check">
+        <input type="checkbox" name="consentement" required />
+        <span>
+          {t(c.consent)}
+          <a href={href('privacy', lang)}>{t(c.more)}</a>
+        </span>
+      </label>
+      <button class="btn" type="submit">{t(c.send)}</button>
+      <p class="form__status" data-status role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <script>
+    import '../scripts/inner';
+
+    // Préremplit la prestation ou la destination depuis le lien suivi
+    const params = new URLSearchParams(location.search);
+    document.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-prefill]').forEach((f) => {
+      const v = params.get(f.dataset.prefill!);
+      if (v) f.value = v;
+    });
+
+    // Maquette : l'envoi n'est pas encore branché
+    const form = document.querySelector<HTMLFormElement>('[data-form]')!;
+    const status = document.querySelector<HTMLElement>('[data-status]')!;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        status.textContent = form.dataset.invalid!;
+        form.reportValidity();
+        return;
+      }
+      status.textContent = form.dataset.mock!;
+    });
+  </script>
+</Base>

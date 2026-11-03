@@ -1,0 +1,169 @@
+---
+import Base from '../layouts/Base.astro';
+import Shot from '../components/Shot.astro';
+import { ambiance, brand, destinations, hero, services, steps } from '../data/site';
+import { href, other, ui, type L, type Lang } from '../i18n';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = (l: L) => l[lang];
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const c = {
+  title: { fr: `${brand.name} | Conciergerie privée, montagne et littoral`, en: `${brand.name} | Private concierge, mountains and coast` },
+  description: {
+    fr: 'Conciergerie privée basée à Lyon : hébergements d’exception, transferts privés, activités sur mesure et gastronomie, à la montagne l’hiver et sur le littoral l’été.',
+    en: 'Private concierge based in Lyon: exceptional homes, private transfers, tailored activities and fine dining, in the mountains in winter and on the coast in summer.',
+  },
+  line: { fr: 'Montagne l’hiver. Littoral l’été.', en: 'Mountains in winter. The coast in summer.' },
+  h1: { fr: 'L’exception, une demande à la fois', en: 'The exceptional, one request at a time' },
+  lead: {
+    fr: `Conciergerie privée basée à ${brand.city}. Hébergements, transferts, activités et tables d’exception, à la montagne l’hiver et sur le littoral l’été.`,
+    en: `A private concierge based in ${brand.city}. Homes, transfers, activities and fine tables, in the mountains in winter and on the coast in summer.`,
+  },
+  manifestLabel: { fr: 'Notre engagement', en: 'Our commitment' },
+  manifest: {
+    fr: 'Un séjour réussi tient à des détails que personne ne remarque. Nous nous occupons de chacun d’eux, avec discrétion.',
+    en: 'A successful stay depends on details nobody notices. We take care of each one of them, discreetly.',
+  },
+  method: { fr: 'Notre façon de faire', en: 'How we work' },
+  servicesTitle: { fr: 'Quatre prestations, chacune à part', en: 'Four services, each on its own' },
+  servicesLead: {
+    fr: 'Chaque prestation se demande séparément, selon votre besoin. Vous choisissez ce que vous nous confiez.',
+    en: 'Each service is requested separately, as you need it. You choose what you entrust to us.',
+  },
+  destTitle: { fr: 'Où nous intervenons', en: 'Where we work' },
+  destLead: {
+    fr: 'La montagne l’hiver, le littoral l’été. D’autres destinations sont possibles, selon votre demande.',
+    en: 'The mountains in winter, the coast in summer. Other destinations are possible on request.',
+  },
+  endA: { fr: 'Une envie', en: 'Something' },
+  endB: { fr: 'précise ?', en: 'in mind?' },
+  endC: { fr: 'Parlons-en.', en: 'Let’s talk.' },
+  request: { fr: 'Faire une demande', en: 'Make a request' },
+} satisfies Record<string, L>;
+
+// Mur des destinations : les cinq lieux au centre, l'ambiance autour
+const byKey = (k: string) => destinations.find((d) => d.key === k)!;
+const wall = [
+  { photo: ambiance[0] },
+  byKey('alpes'),
+  { photo: ambiance[1] },
+  byKey('cote-azur'),
+  byKey('corse'),
+  byKey('bretagne'),
+  { photo: ambiance[2] },
+  byKey('provence'),
+  { photo: ambiance[3] },
+] as { photo: (typeof ambiance)[number]; name?: L; season?: 'hiver' | 'ete' }[];
+---
+<Base title={t(c.title)} description={t(c.description)} page="home">
+  <div class="intro" data-intro data-there={href('home', other(lang))} data-lang={lang}>
+    <canvas class="intro__canvas" data-emblem aria-hidden="true"></canvas>
+    <span class="mark mark--symbole intro__flat" aria-hidden="true"></span>
+    <p class="intro__line" aria-hidden="true">{t(c.line)}</p>
+    <div class="intro__lang" data-lang-choice role="group" aria-label="Langue / Language">
+      <button type="button" data-choose="fr" lang="fr">Français</button>
+      <span class="intro__sep" aria-hidden="true"></span>
+      <button type="button" data-choose="en" lang="en">English</button>
+    </div>
+  </div>
+
+  <svg class="thread" data-thread aria-hidden="true" focusable="false"></svg>
+
+  <section class="hero" data-hero>
+    <div class="hero__window" data-hero-window>
+      <Shot src={hero} eager class="hero__shot" />
+    </div>
+    <p class="hero__word" data-fit aria-hidden="true">Mecking</p>
+    <div class="hero__tiles" aria-hidden="true">
+      {services.map((s, i) => (
+        <div class={`tile tile--${i + 1}`}>
+          <div class="tile__in">
+            <Shot src={s.photo} sizes="22vw" class="tile__shot" />
+          </div>
+        </div>
+      ))}
+    </div>
+    <div class="hero__text">
+      <h1 class="hero__title">{t(c.h1)}</h1>
+      <p class="hero__lead">{t(c.lead)}</p>
+    </div>
+  </section>
+
+  <section class="manifest" aria-label={t(c.manifestLabel)}>
+    <p class="manifest__text" data-words>{t(c.manifest)}</p>
+  </section>
+
+  <section class="method" data-method aria-labelledby="method-title">
+    <h2 class="method__title" id="method-title">{t(c.method)}</h2>
+    <div class="method__stage">
+      <div class="method__photos">
+        {steps.map((s, i) => <Shot src={s.photo} sizes="(min-width: 900px) 40vw, 100vw" class:list={['method__photo', { 'is-on': i === 0 }]} />)}
+      </div>
+      <p class="method__count" aria-hidden="true">
+        <span data-count>01</span> / {pad(steps.length)}
+      </p>
+      <ol class="method__steps">
+        {steps.map((s, i) => (
+          <li class:list={['method__step', { 'is-on': i === 0 }]}>
+            <h3>{t(s.title)}</h3>
+            <p>{t(s.text)}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="services" aria-labelledby="services-title">
+    <header class="services__head">
+      <h2 id="services-title">{t(c.servicesTitle)}</h2>
+      <p>{t(c.servicesLead)}</p>
+    </header>
+    <ul class="plist" data-plist>
+      {services.map((s) => <li><a href={`#${s.slug}`}>{t(s.title)}</a></li>)}
+    </ul>
+    <div class="preview" data-preview aria-hidden="true">
+      {services.map((s) => <Shot src={s.photo} sizes="24vw" class="preview__shot" />)}
+    </div>
+    {services.map((s, i) => (
+      <article class:list={['service', { 'service--flip': i % 2 }]} id={s.slug}>
+        <Shot src={s.photo} sizes="(min-width: 900px) 55vw, 100vw" class="service__shot" />
+        <div class="service__text">
+          <h3 class="service__title">{t(s.title)}</h3>
+          <p>{t(s.text)}</p>
+          <a class="btn" href={href('contact', lang, `?prestation=${s.slug}`)}>{t(s.cta)}</a>
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <section class="dest" data-dest aria-labelledby="dest-title">
+    <div class="dest__wall">
+      <div class="dest__grid" data-wall>
+        {wall.map((w) => (
+          <article class:list={['dest__tile', { 'dest__tile--place': w.name }]}>
+            <Shot src={w.photo} sizes="(min-width: 900px) 30vw, 50vw" class="dest__shot" />
+            {w.name && <h3 class="dest__name">{t(w.name)}</h3>}
+            {w.season && <p class="dest__season">{t(ui[w.season])}</p>}
+          </article>
+        ))}
+      </div>
+    </div>
+    <div class="dest__head">
+      <h2 id="dest-title">{t(c.destTitle)}</h2>
+      <p>{t(c.destLead)}</p>
+    </div>
+  </section>
+
+  <section class="end" data-tone="photo">
+    <Shot src={hero} class="end__shot" />
+    <div class="end__text">
+      <h2 class="end__title">{t(c.endA)} <span class="nowrap">{t(c.endB)}</span> {t(c.endC)}</h2>
+      <a class="btn btn--light" href={href('contact', lang)}>{t(c.request)}</a>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/home';
+  </script>
+</Base>

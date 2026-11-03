@@ -3,31 +3,49 @@ import '@fontsource-variable/bodoni-moda/opsz.css';
 import '@fontsource-variable/manrope';
 import '../styles/global.css';
 import Shot from '../components/Shot.astro';
-import { brand, nav, link } from '../data/site';
+import { brand, nav } from '../data/site';
+import { href, link, other, ui, type L, type Lang, type Route } from '../i18n';
 
 interface Props {
   title: string;
   description: string;
+  page: Route;
 }
-const { title, description } = Astro.props;
+const { title, description, page } = Astro.props;
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const alt = other(lang);
+const t = (l: L) => l[lang];
 const year = new Date().getFullYear();
+const here = href(page, lang);
+const there = href(page, alt);
 ---
 <!doctype html>
-<html lang="fr" data-season="hiver" data-mode="nuit">
+<html lang={lang} data-season="hiver" data-mode="nuit">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="robots" content="noindex" />
-    <link rel="icon" type="image/svg+xml" href={link("/favicon.svg")} />
+    <link rel="alternate" hreflang={lang} href={here} />
+    <link rel="alternate" hreflang={alt} href={there} />
+    <link rel="icon" type="image/svg+xml" href={link('/favicon.svg')} />
     <link rel="preconnect" href="https://images.unsplash.com" />
-    <script is:inline>
+    <script is:inline define:vars={{ lang, there, isHome: page === 'home' }}>
       // Saison et mode avant le premier affichage, pour éviter un éclair
       (function () {
         var d = document.documentElement;
-        var s, m;
-        try { s = localStorage.getItem('mecking-saison'); m = localStorage.getItem('mecking-mode'); } catch (e) {}
+        var s, m, l;
+        try {
+          s = localStorage.getItem('mecking-saison');
+          m = localStorage.getItem('mecking-mode');
+          l = localStorage.getItem('mecking-lang');
+        } catch (e) {}
+        // Accueil : on rejoint la langue déjà choisie
+        if (isHome && (l === 'fr' || l === 'en') && l !== lang) {
+          location.replace(there);
+          return;
+        }
         var month = new Date().getMonth();
         d.dataset.season = s === 'ete' || s === 'hiver' ? s : month >= 4 && month <= 9 ? 'ete' : 'hiver';
         d.dataset.mode = m === 'jour' || m === 'nuit' ? m : matchMedia('(prefers-color-scheme: light)').matches ? 'jour' : 'nuit';
@@ -36,43 +54,41 @@ const year = new Date().getFullYear();
     </script>
   </head>
   <body>
-    <a class="skip" href="#contenu">Aller au contenu</a>
+    <a class="skip" href="#contenu">{t(ui.skip)}</a>
 
     <header class="bar" data-bar>
       <div class="bar__left">
-        <div class="switch" role="group" aria-label="Saison">
-          <button type="button" data-season-set="hiver">Hiver</button>
-          <button type="button" data-season-set="ete">Été</button>
+        <div class="switch" role="group" aria-label={t(ui.season)}>
+          <button type="button" data-season-set="hiver">{t(ui.hiver)}</button>
+          <button type="button" data-season-set="ete">{t(ui.ete)}</button>
         </div>
       </div>
-      <a class="bar__logo" href={link("/")} aria-label={`${brand.name}, accueil`}>
+      <a class="bar__logo" href={href('home', lang)} aria-label={`${brand.name}, ${t(ui.home)}`}>
         <span class="mark mark--nom" aria-hidden="true"></span>
       </a>
       <div class="bar__right">
         <button type="button" class="bar__mode" data-mode-toggle>
-          <span class="m-jour">Mode nuit</span><span class="m-nuit">Mode jour</span>
+          <span class="m-jour">{t(ui.night)}</span><span class="m-nuit">{t(ui.day)}</span>
         </button>
+        <a class="bar__lang" href={there} hreflang={alt} lang={alt} data-lang-set={alt} aria-label={ui.switchTo[alt]}>
+          {alt.toUpperCase()}
+        </a>
         <button type="button" class="bar__menu" data-menu-open aria-expanded="false" aria-controls="menu">
-          Menu <span class="burger" aria-hidden="true"></span>
+          {t(ui.menu)} <span class="burger" aria-hidden="true"></span>
         </button>
       </div>
     </header>
 
     <div class="menu" id="menu" data-menu hidden>
-      <button type="button" class="menu__close" data-menu-close>Fermer</button>
-      <nav class="menu__nav" aria-label="Navigation principale">
+      <button type="button" class="menu__close" data-menu-close>{t(ui.close)}</button>
+      <nav class="menu__nav" aria-label={t(ui.mainNav)}>
         <ul data-menu-list>
           {nav.map((l) => (
             <li class="menu__item">
-              <a
-                class="menu__link"
-                href={link(l.href)}
-                aria-label={l.label}
-                aria-current={Astro.url.pathname.replace(/\/$/, '') === link(l.href) ? 'page' : undefined}
-              >
+              <a class="menu__link" href={href(l.route, lang)} aria-label={t(l.label)} aria-current={l.route === page ? 'page' : undefined}>
                 <span class="roll" aria-hidden="true">
                   {['roll__a', 'roll__b'].map((k) => (
-                    <span class={k}>{[...l.label].map((c, n) => <span style={`--i:${n}`}>{c === ' ' ? '\u00a0' : c}</span>)}</span>
+                    <span class={k}>{[...t(l.label)].map((c, n) => <span style={`--i:${n}`}>{c === ' ' ? ' ' : c}</span>)}</span>
                   ))}
                 </span>
               </a>
@@ -85,15 +101,16 @@ const year = new Date().getFullYear();
       </div>
       <div class="menu__foot">
         <div class="menu__prefs">
-          <div class="switch" role="group" aria-label="Saison">
-            <button type="button" data-season-set="hiver">Hiver</button>
-            <button type="button" data-season-set="ete">Été</button>
+          <div class="switch" role="group" aria-label={t(ui.season)}>
+            <button type="button" data-season-set="hiver">{t(ui.hiver)}</button>
+            <button type="button" data-season-set="ete">{t(ui.ete)}</button>
           </div>
           <button type="button" data-mode-toggle>
-            <span class="m-jour">Mode nuit</span><span class="m-nuit">Mode jour</span>
+            <span class="m-jour">{t(ui.night)}</span><span class="m-nuit">{t(ui.day)}</span>
           </button>
         </div>
-        <p>Conciergerie privée basée à {brand.city}</p>
+        <a class="menu__lang" href={there} hreflang={alt} lang={alt} data-lang-set={alt}>{ui.langName[alt]}</a>
+        <p>{t(ui.based)}</p>
       </div>
     </div>
 
@@ -103,18 +120,19 @@ const year = new Date().getFullYear();
 
     <footer class="foot">
       <span class="mark mark--logo foot__logo" role="img" aria-label={brand.name}></span>
-      <nav aria-label="Pied de page">
+      <nav aria-label={t(ui.footNav)}>
         <ul>
-          {nav.map((l) => <li><a href={link(l.href)}>{l.label}</a></li>)}
-          <li><a href={link("/mentions-legales")}>Mentions légales</a></li>
-          <li><a href={link("/confidentialite")}>Confidentialité</a></li>
+          {nav.map((l) => <li><a href={href(l.route, lang)}>{t(l.label)}</a></li>)}
+          <li><a href={href('legal', lang)}>{t(ui.legal)}</a></li>
+          <li><a href={href('privacy', lang)}>{t(ui.privacy)}</a></li>
+          <li><a href={there} hreflang={alt} lang={alt} data-lang-set={alt}>{ui.langName[alt]}</a></li>
         </ul>
       </nav>
       <p class="foot__word" data-fit aria-hidden="true">Exclusive Travel</p>
       <p class="foot__small">
-        © {year} {brand.name}. Photographies d’illustration :
+        © {year} {brand.name}. {t(ui.photos)}
         <a href="https://unsplash.com" rel="noopener">Unsplash</a>.
-        <span class="foot__credit">Créé par <a href="https://legenienumerique.fr" rel="noopener">legenienumerique.fr</a></span>
+        <span class="foot__credit">{t(ui.created)} <a href="https://legenienumerique.fr" rel="noopener">legenienumerique.fr</a></span>
       </p>
     </footer>
 

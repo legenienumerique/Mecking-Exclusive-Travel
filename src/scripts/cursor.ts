@@ -85,6 +85,7 @@ export function startCursor() {
       if (e.pointerType !== 'mouse') return;
       mx = e.clientX;
       my = e.clientY;
+      root.classList.add('has-rider');
       if (!seen) {
         x = mx;
         y = my;
@@ -95,6 +96,8 @@ export function startCursor() {
     { passive: true },
   );
   document.documentElement.addEventListener('mouseleave', () => rider.classList.remove('is-on'));
+  // Un vrai clic tactile ou au stylet rend la flèche habituelle
+  window.addEventListener('pointerdown', (e) => e.pointerType !== 'mouse' && root.classList.remove('has-rider'));
   document.documentElement.addEventListener('mouseenter', () => seen && rider.classList.add('is-on'));
 
   const ink = () => (root.dataset.mode === 'jour' ? '9, 24, 55' : '242, 244, 245');
@@ -103,8 +106,9 @@ export function startCursor() {
   function frame(now: number) {
     requestAnimationFrame(frame);
     // Le personnage rejoint la souris avec un peu d'inertie, un peu en dessous de la pointe
-    const tx = mx + 12;
-    const ty = my + 18;
+    // Le personnage remplace la flèche : ses skis ou sa coque sous la pointe
+    const tx = mx;
+    const ty = my + 4;
     const dx = tx - x;
     const dy = ty - y;
     x += dx * 0.16;

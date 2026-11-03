@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Shot from '../components/Shot.astro';
+import { ambiance, brand, values } from '../data/site';
+import { href, ui, type L, type Lang } from '../i18n';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = (l: L) => l[lang];
+const c = {
+  title: { fr: 'À propos | Mecking Exclusive Travel', en: 'About | Mecking Exclusive Travel' },
+  description: {
+    fr: 'Une conciergerie privée basée à Lyon, au service d’une clientèle exigeante partout en France : discrétion, sur-mesure et un interlocuteur unique.',
+    en: 'A private concierge based in Lyon, serving a demanding clientele across France: discretion, tailored service and a single point of contact.',
+  },
+  h1: { fr: 'Une conciergerie privée, une seule personne à vos côtés', en: 'A private concierge, one person by your side' },
+  lead: {
+    fr: `Basée à ${brand.city}, elle accompagne des voyageurs de toute la France, à la montagne l’hiver et sur le littoral l’été.`,
+    en: `Based in ${brand.city}, it looks after travellers from all over France, in the mountains in winter and on the coast in summer.`,
+  },
+  portrait: { fr: 'Portrait du concierge', en: 'Portrait of the concierge' },
+  pathTitle: { fr: 'Le parcours', en: 'Background' },
+  pathTodo: { fr: 'Parcours, expérience et motivations du concierge', en: 'The concierge’s background, experience and motivation' },
+  approach: { fr: 'Notre approche', en: 'Our approach' },
+  approachText: { fr: 'Ce qui compte pour celles et ceux qui nous confient leurs séjours.', en: 'What matters to those who entrust us with their stays.' },
+  endTitle: { fr: 'Faisons connaissance.', en: 'Let’s get acquainted.' },
+  endBtn: { fr: 'Prendre contact', en: 'Get in touch' },
+} satisfies Record<string, L>;
+---
+<Base title={t(c.title)} description={t(c.description)} page="about">
+  <PageHero word="Mecking" title={t(c.h1)} lead={t(c.lead)} photo={ambiance[0]} />
+
+  <section class="about">
+    <div class="about__portrait todo todo--box" data-rise>
+      <span>{t(c.portrait)} : {t(ui.todo)}.</span>
+    </div>
+    <div class="about__text">
+      <h2 data-lines>{t(c.pathTitle)}</h2>
+      <p class="todo">{t(c.pathTodo)} : {t(ui.todo)}.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block__head">
+      <h2 data-lines>{t(c.approach)}</h2>
+      <p>{t(c.approachText)}</p>
+    </div>
+    <ul class="values" data-rise>
+      {values.map((v) => (
+        <li>
+          <h3>{t(v.title)}</h3>
+          <p>{t(v.text)}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="band">
+    <Shot src={ambiance[3]} class="band__shot" data-shape />
+  </section>
+
+  <section class="end end--plain">
+    <div class="end__text">
+      <h2 class="end__title" data-lines>{t(c.endTitle)}</h2>
+      <a class="btn" href={href('contact', lang)}>{t(c.endBtn)}</a>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/inner';
+  </script>
+</Base>

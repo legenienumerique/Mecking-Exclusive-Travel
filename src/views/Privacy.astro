@@ -1,0 +1,65 @@
+---
+import Base from '../layouts/Base.astro';
+import { ui, type L, type Lang } from '../i18n';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = (l: L) => l[lang];
+const todo = t(ui.todo);
+const c = {
+  title: { fr: 'Confidentialité | Mecking Exclusive Travel', en: 'Privacy | Mecking Exclusive Travel' },
+  description: {
+    fr: 'Comment Mecking Exclusive Travel utilise les informations transmises par le formulaire de contact.',
+    en: 'How Mecking Exclusive Travel uses the information sent through the contact form.',
+  },
+  h1: { fr: 'Politique de confidentialité', en: 'Privacy policy' },
+  data: { fr: 'Données recueillies', en: 'Data collected' },
+  dataText: {
+    fr: 'Le formulaire de contact recueille votre nom, votre e-mail, et si vous le souhaitez votre téléphone, la prestation recherchée, la destination, la période, le nombre de personnes et votre message.',
+    en: 'The contact form collects your name, your e-mail and, if you wish, your phone number, the service wanted, the destination, the period, the number of people and your message.',
+  },
+  use: { fr: 'Utilisation', en: 'Use' },
+  useText: {
+    fr: 'Ces informations servent uniquement à répondre à votre demande. Elles ne sont ni vendues ni cédées.',
+    en: 'This information is used only to reply to your request. It is never sold or passed on.',
+  },
+  keep: { fr: 'Durée de conservation', en: 'Retention period' },
+  keepTodo: { fr: 'Durée de conservation des demandes', en: 'How long requests are kept' },
+  owner: { fr: 'Responsable du traitement', en: 'Data controller' },
+  ownerTodo: { fr: 'Identité et coordonnées du responsable', en: 'Identity and contact details of the controller' },
+  rights: { fr: 'Vos droits', en: 'Your rights' },
+  rightsText: {
+    fr: 'Vous pouvez demander l’accès, la rectification ou la suppression de vos données, et vous opposer à leur utilisation. Vous pouvez aussi saisir la CNIL.',
+    en: 'You can ask to access, correct or delete your data, and object to its use. You can also contact the CNIL, the French data protection authority.',
+  },
+  rightsTodo: { fr: 'Adresse à laquelle exercer vos droits', en: 'Address at which to exercise your rights' },
+  cookies: { fr: 'Mesure d’audience et cookies', en: 'Analytics and cookies' },
+  cookiesText: {
+    fr: 'Le site n’utilise pas de cookie de mesure d’audience. Il retient seulement, dans votre navigateur, la langue, la saison et le mode d’affichage choisis.',
+    en: 'The site uses no analytics cookies. It only remembers, in your browser, the language, season and display mode you chose.',
+  },
+} satisfies Record<string, L>;
+---
+<Base title={t(c.title)} description={t(c.description)} page="privacy">
+  <article class="legal">
+    <h1>{t(c.h1)}</h1>
+
+    <h2>{t(c.data)}</h2>
+    <p>{t(c.dataText)}</p>
+
+    <h2>{t(c.use)}</h2>
+    <p>{t(c.useText)}</p>
+
+    <h2>{t(c.keep)}</h2>
+    <p class="todo">{t(c.keepTodo)} : {todo}.</p>
+
+    <h2>{t(c.owner)}</h2>
+    <p class="todo">{t(c.ownerTodo)} : {todo}.</p>
+
+    <h2>{t(c.rights)}</h2>
+    <p>{t(c.rightsText)}</p>
+    <p class="todo">{t(c.rightsTodo)} : {todo}.</p>
+
+    <h2>{t(c.cookies)}</h2>
+    <p>{t(c.cookiesText)}</p>
+  </article>
+</Base>

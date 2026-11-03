@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Shot from '../components/Shot.astro';
+import { ambiance, journalTopics } from '../data/site';
+import { type L, type Lang } from '../i18n';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = (l: L) => l[lang];
+const c = {
+  title: { fr: 'Journal | Mecking Exclusive Travel', en: 'Journal | Mecking Exclusive Travel' },
+  description: {
+    fr: 'Inspirations, conseils et actualités autour de la montagne en hiver et du littoral en été.',
+    en: 'Inspiration, tips and news about the mountains in winter and the coast in summer.',
+  },
+  h1: { fr: 'Inspirations et conseils', en: 'Inspiration and tips' },
+  lead: {
+    fr: 'Des idées de séjours, des conseils pratiques et nos coups de cœur, au fil des saisons.',
+    en: 'Ideas for stays, practical tips and our favourites, season by season.',
+  },
+  soonTitle: { fr: 'Bientôt dans le journal', en: 'Coming soon to the journal' },
+  soonText: { fr: 'Les premiers articles sont en préparation. Voici les sujets prévus.', en: 'The first articles are being prepared. Here are the planned topics.' },
+  todo: {
+    fr: 'Aucun article rédigé pour l’instant : sujets proposés, à valider et à rédiger avec le client.',
+    en: 'No article written yet: proposed topics, to be approved and written with the client.',
+  },
+  soon: { fr: 'Article à venir', en: 'Article coming soon' },
+} satisfies Record<string, L>;
+---
+<Base title={t(c.title)} description={t(c.description)} page="journal">
+  <PageHero word="Journal" title={t(c.h1)} lead={t(c.lead)} photo={ambiance[1]} />
+
+  <section class="block">
+    <div class="block__head">
+      <h2 data-lines>{t(c.soonTitle)}</h2>
+      <p>{t(c.soonText)}</p>
+    </div>
+    <p class="todo">{t(c.todo)}</p>
+    <ul class="posts" data-rise>
+      {journalTopics.map((p) => (
+        <li class="post">
+          <Shot src={p.photo} sizes="(min-width: 900px) 30vw, 100vw" class="post__shot" />
+          <p class="kicker">{t(p.theme)}</p>
+          <h3>{t(p.title)}</h3>
+          <p class="post__soon">{t(c.soon)}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <script>
+    import '../scripts/inner';
+  </script>
+</Base>

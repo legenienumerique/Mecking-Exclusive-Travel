@@ -42,6 +42,11 @@ document.querySelectorAll<HTMLButtonElement>('[data-mode-toggle]').forEach((b) =
   }),
 );
 
+// Langue : le choix est retenu pour les prochaines visites
+document.querySelectorAll<HTMLAnchorElement>('[data-lang-set]').forEach((a) =>
+  a.addEventListener('click', () => store('mecking-lang', a.dataset.langSet!)),
+);
+
 // Menu plein écran : rideau qui descend, liens qui montent, photo de la page survolée
 const menu = document.querySelector<HTMLElement>('[data-menu]')!;
 const opener = document.querySelector<HTMLButtonElement>('[data-menu-open]')!;

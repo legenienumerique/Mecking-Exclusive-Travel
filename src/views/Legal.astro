@@ -1,0 +1,65 @@
+---
+import Base from '../layouts/Base.astro';
+import { ui, type L, type Lang } from '../i18n';
+
+const lang = (Astro.currentLocale ?? 'fr') as Lang;
+const t = (l: L) => l[lang];
+const todo = t(ui.todo);
+const c = {
+  title: { fr: 'Mentions légales | Mecking Exclusive Travel', en: 'Legal notice | Mecking Exclusive Travel' },
+  description: { fr: 'Mentions légales du site Mecking Exclusive Travel.', en: 'Legal notice for the Mecking Exclusive Travel website.' },
+  h1: { fr: 'Mentions légales', en: 'Legal notice' },
+  publisher: { fr: 'Éditeur du site', en: 'Publisher' },
+  publisherTodo: {
+    fr: 'Raison sociale, forme juridique, adresse, SIREN, capital, e-mail et téléphone',
+    en: 'Company name, legal form, address, SIREN number, share capital, e-mail and phone',
+  },
+  director: { fr: 'Directeur de la publication', en: 'Publication director' },
+  directorTodo: { fr: 'Nom du responsable de la publication', en: 'Name of the person responsible for publication' },
+  host: { fr: 'Hébergement', en: 'Hosting' },
+  hostTodo: {
+    fr: 'Nom, adresse et téléphone de l’hébergeur : à compléter à la mise en ligne.',
+    en: 'Host’s name, address and phone: to be completed at launch.',
+  },
+  design: { fr: 'Conception', en: 'Design' },
+  designText: { fr: 'Site conçu par Le Génie Numérique.', en: 'Website designed by Le Génie Numérique.' },
+  credits: { fr: 'Crédits', en: 'Credits' },
+  creditsText: {
+    fr: 'Photographies d’illustration : Unsplash. Polices : Bodoni Moda et Manrope, sous licence libre.',
+    en: 'Illustrative photography: Unsplash. Typefaces: Bodoni Moda and Manrope, under open licences.',
+  },
+  activity: { fr: 'Activité', en: 'Activity' },
+  activityText: {
+    fr: 'Mecking Exclusive Travel propose des prestations de conciergerie présentées séparément. Le site ne propose ni forfait touristique ni réservation de voyage.',
+    en: 'Mecking Exclusive Travel offers concierge services presented separately. The site offers neither package holidays nor travel bookings.',
+  },
+  activityTodo: {
+    fr: 'Cadre réglementaire de l’activité : à vérifier par le client avec un professionnel compétent.',
+    en: 'Regulatory framework of the activity: to be checked by the client with a qualified professional.',
+  },
+} satisfies Record<string, L>;
+---
+<Base title={t(c.title)} description={t(c.description)} page="legal">
+  <article class="legal">
+    <h1>{t(c.h1)}</h1>
+
+    <h2>{t(c.publisher)}</h2>
+    <p class="todo">{t(c.publisherTodo)} : {todo}.</p>
+
+    <h2>{t(c.director)}</h2>
+    <p class="todo">{t(c.directorTodo)} : {todo}.</p>
+
+    <h2>{t(c.host)}</h2>
+    <p class="todo">{t(c.hostTodo)}</p>
+
+    <h2>{t(c.design)}</h2>
+    <p>{t(c.designText)}</p>
+
+    <h2>{t(c.credits)}</h2>
+    <p>{t(c.creditsText)}</p>
+
+    <h2>{t(c.activity)}</h2>
+    <p>{t(c.activityText)}</p>
+    <p class="todo">{t(c.activityTodo)}</p>
+  </article>
+</Base>
