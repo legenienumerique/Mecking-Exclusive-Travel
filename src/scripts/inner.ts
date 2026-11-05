@@ -2,17 +2,15 @@
  * Pages intérieures : en-tête (lettres géantes, photo qui s'ouvre en plein écran),
  * animations déclarées dans le HTML, curseur vivant et défilement fluide.
  */
-import { declaredReveals, gsap, reduced, splitLetters, splitLines, startSmooth } from './shared';
+import { declaredReveals, gsap, openWindow, reduced, splitLetters, splitLines, startSmooth } from './shared';
 import { startCursor } from './cursor';
 
 function heroScene() {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   if (!hero) return;
   const letters = splitLetters(hero.querySelector<HTMLElement>('.hero__word')!);
-  gsap
-    .timeline({ defaults: { ease: 'expo.out' } })
+  openWindow(gsap.timeline({ defaults: { ease: 'expo.out' } }))
     .from(letters, { yPercent: 110, duration: 1.6, stagger: 0.06 }, 0.1)
-    .from('[data-hero-window]', { clipPath: 'inset(50% 50% 50% 50%)', duration: 1.8, ease: 'expo.inOut' }, 0)
     .from('.hero__shot img', { scale: 1.4, duration: 2.4 }, 0)
     .from(splitLines(hero.querySelector<HTMLElement>('.hero__title')!), { yPercent: 110, duration: 1.2, stagger: 0.1 }, 0.6)
     .from('.hero__lead', { opacity: 0, y: 16, duration: 1.2 }, 0.9);

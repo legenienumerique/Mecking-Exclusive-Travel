@@ -455,51 +455,199 @@ html[data-mode='nuit'] .m-jour {
   color: var(--ink);
 }
 
-/* Entrée : le symbole en relief s'éclaire */
+/* Entrée : le logo se dessine, un reflet le traverse, puis on entre dans le site par le symbole.
+   Le déroulé est en CSS pour partir dès le premier affichage ; home.ts gère le choix et le zoom. */
 .intro {
   position: fixed;
   inset: 0;
   z-index: 50;
   display: none;
   place-items: center;
-  background: var(--bg);
   color: var(--fg);
+  --intro-logo: var(--ink);
+  --intro-shine: rgb(236 242 246 / 0.95);
+  --intro-glow: rgb(9 24 55 / 0.22);
+  --intro-halo: transparent;
+  --intro-halo-2: transparent;
+  --intro-band: 42%;
+}
+
+html[data-mode='nuit'] .intro {
+  /* Logo argenté sur l'encre : le reflet blanc et son halo restent visibles */
+  --intro-logo: #b3c2ce;
+  --intro-shine: #fff;
+  --intro-glow: rgb(201 214 223 / 0.55);
+  --intro-halo: rgb(255 255 255 / 0.85);
+  --intro-halo-2: rgb(201 214 223 / 0.7);
+  --intro-band: 38%;
 }
 
 .js .intro {
   display: grid;
 }
 
-.intro.is-done {
+.intro.is-done,
+html[data-entry='skip'] .intro {
   display: none;
 }
 
-.intro__canvas {
+.intro__veil {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+}
+
+.intro__logo {
+  position: relative;
+  width: min(34rem, 78vw);
+  aspect-ratio: 777 / 284;
+  margin-top: -14vh;
+  color: var(--intro-logo);
+}
+
+html[data-entry='carry'] .intro__logo,
+html[data-entry='carry'] .intro__line,
+html[data-entry='carry'] .intro__lang {
+  display: none;
+}
+
+.intro__draw,
+.intro__part,
+.intro__glow,
+.intro__shine {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.intro__flat {
-  display: none;
-  width: min(9rem, 30vw);
+.intro__draw {
+  overflow: visible;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px var(--intro-glow));
 }
 
-.intro--flat .intro__flat {
-  display: block;
+.intro__draw polygon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+/* Le même fichier, découpé en trois bandes : symbole, nom, signature */
+.intro__part--sym {
+  clip-path: inset(0 0 61% 0);
+}
+
+.intro__part--name {
+  clip-path: inset(42% 0 20% 0);
+}
+
+.intro__part--sub {
+  clip-path: inset(82% 0 0 0);
+}
+
+.intro__glow {
+  filter: drop-shadow(0 0 4px var(--intro-halo)) drop-shadow(0 0 16px var(--intro-halo-2));
+  pointer-events: none;
+}
+
+.intro__shine {
+  background: linear-gradient(100deg, transparent var(--intro-band), var(--intro-shine) 50%, transparent calc(100% - var(--intro-band))) 0% 0 / 300% 100% no-repeat;
+}
+
+html[data-entry='play'] .intro__draw {
+  animation: intro-trace 2.6s linear 0.1s both;
+}
+
+html[data-entry='play'] .intro__draw polygon {
+  animation: intro-draw 1.7s cubic-bezier(0.65, 0, 0.35, 1) 0.2s both;
+}
+
+html[data-entry='play'] .intro__draw polygon + polygon {
+  animation-delay: 0.55s;
+}
+
+html[data-entry='play'] .intro__part--sym {
+  animation: intro-fill 0.9s ease-out 1.75s both;
+}
+
+html[data-entry='play'] .intro__part--name {
+  animation: intro-wipe 1.2s cubic-bezier(0.65, 0, 0.35, 1) 2.1s both;
+}
+
+html[data-entry='play'] .intro__part--sub {
+  animation: intro-open 1.1s cubic-bezier(0.22, 1, 0.36, 1) 2.75s both;
+}
+
+html[data-entry='play'] .intro__shine {
+  animation: intro-shine 1.7s cubic-bezier(0.45, 0, 0.25, 1) 3.3s both;
+}
+
+/* Au choix, le déroulé se fige à son état final et GSAP prend le relais */
+.intro.is-leaving *,
+.intro.is-leaving .intro__draw polygon {
+  animation: none !important;
+}
+
+@keyframes intro-trace {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes intro-draw {
+  from { stroke-dashoffset: 1; }
+}
+
+@keyframes intro-fill {
+  from { opacity: 0; }
+}
+
+@keyframes intro-wipe {
+  from { clip-path: inset(42% 100% 20% 0); }
+}
+
+@keyframes intro-open {
+  from { clip-path: inset(82% 50% 0 50%); opacity: 0; }
+}
+
+@keyframes intro-shine {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
 }
 
 .intro__line {
   position: absolute;
-  bottom: 18vh;
+  bottom: calc(9vh + 5.5rem);
   left: 0;
   right: 0;
   text-align: center;
   font-family: var(--serif);
   font-style: italic;
   font-size: clamp(1.1rem, 2vw, 1.5rem);
-  opacity: 0;
+}
+
+html[data-entry='play'] .intro__line {
+  animation: intro-rise 1.2s cubic-bezier(0.22, 1, 0.36, 1) 3.7s both;
+}
+
+html[data-entry='play'] .intro__lang {
+  animation: intro-rise 1.2s cubic-bezier(0.22, 1, 0.36, 1) 4.1s both;
+}
+
+@keyframes intro-rise {
+  from { opacity: 0; transform: translateY(1.2rem); visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-entry='play'] .intro *,
+  html[data-entry='play'] .intro__draw polygon {
+    animation: none !important;
+  }
 }
 
 /* Ouverture : mot géant, photos flottantes, fenêtre qui s'ouvre en plein écran */
@@ -1566,19 +1714,10 @@ html.has-rider select {
   bottom: 9vh;
   left: 0;
   right: 0;
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   gap: 1.5rem;
-  opacity: 0;
-}
-
-.intro--choose .intro__lang {
-  display: flex;
-}
-
-.intro--choose .intro__line {
-  bottom: calc(9vh + 5.5rem);
 }
 
 .intro__lang button {

@@ -46,6 +46,14 @@ const there = href(page, alt);
           location.replace(there);
           return;
         }
+        // Entrée de l'accueil : jouée une fois par visite ; « carry » = arrivée depuis le choix de l'autre langue
+        if (isHome) {
+          var i;
+          try {
+            i = sessionStorage.getItem('mecking-intro');
+          } catch (e) {}
+          d.dataset.entry = i === '1' ? 'skip' : i === 'carry' ? 'carry' : 'play';
+        }
         var month = new Date().getMonth();
         d.dataset.season = s === 'ete' || s === 'hiver' ? s : month >= 4 && month <= 9 ? 'ete' : 'hiver';
         d.dataset.mode = m === 'jour' || m === 'nuit' ? m : matchMedia('(prefers-color-scheme: light)').matches ? 'jour' : 'nuit';

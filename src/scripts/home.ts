@@ -1,126 +1,75 @@
 /**
- * Accueil : entrée avec le symbole en relief, puis mise en scène au défilement
+ * Accueil : entrée où le logo se dessine, choix de la langue, zoom dans le symbole, puis mise en scène au défilement
  * (mot géant et photos flottantes, fenêtre qui s'ouvre en plein écran, manifeste
  * mot à mot, méthode en cartes 3D, prestations révélées, mur des destinations).
  */
-import { gsap, ScrollTrigger, SplitText, reduced, revealShape, splitLetters, splitLines, startSmooth } from './shared';
+import { gsap, openWindow, ScrollTrigger, SplitText, reduced, revealShape, splitLetters, splitLines, startSmooth } from './shared';
 import { startThread, staticThread } from './thread';
 import { startCursor } from './cursor';
 
 const root = document.documentElement;
 const intro = document.querySelector<HTMLElement>('[data-intro]')!;
 
-/* Entrée */
-function endIntro(instant = false) {
-  try {
-    sessionStorage.setItem('mecking-intro', '1');
-  } catch {
-    /* rien */
-  }
-  document.body.style.overflow = '';
-  if (instant) {
-    intro.classList.add('is-done');
-    return Promise.resolve();
-  }
-  return new Promise<void>((resolve) => {
-    gsap.to(intro, {
-      clipPath: 'inset(0 0 100% 0)',
-      duration: 1.2,
-      ease: 'expo.inOut',
-      onComplete() {
-        intro.classList.add('is-done');
-        resolve();
-      },
-    });
-  });
-}
+/* Entrée : le logo se dessine en CSS (global.css), ici le choix de langue puis le zoom */
+const introMode = root.dataset.entry; // play | carry | skip
 
-function storedLang() {
+function remember(key: string, value: string, store: Storage | null) {
   try {
-    return localStorage.getItem('mecking-lang');
+    store?.setItem(key, value);
   } catch {
-    return null;
+    /* navigation privée */
   }
 }
 
-/** Première visite : le visiteur choisit sa langue sous le symbole. */
-function askLang(): Promise<string> {
-  const box = intro.querySelector<HTMLElement>('[data-lang-choice]')!;
-  intro.classList.add('intro--choose');
-  gsap.fromTo(box, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: reduced ? 0 : 1.2, delay: reduced ? 0 : 1.4, ease: 'expo.out' });
+function chooseLang(): Promise<string> {
+  // L'autre version est préchargée pendant que le logo se dessine
+  const pre = document.createElement('link');
+  pre.rel = 'prefetch';
+  pre.href = intro.dataset.there!;
+  document.head.append(pre);
   return new Promise((resolve) =>
-    box.querySelectorAll<HTMLButtonElement>('[data-choose]').forEach((b) => b.addEventListener('click', () => resolve(b.dataset.choose!))),
+    intro.querySelectorAll<HTMLButtonElement>('[data-choose]').forEach((b) => b.addEventListener('click', () => resolve(b.dataset.choose!), { once: true })),
   );
 }
 
-async function playIntro(): Promise<void> {
-  let seen = false;
-  try {
-    seen = sessionStorage.getItem('mecking-intro') === '1';
-  } catch {
-    /* rien */
-  }
-  const mustChoose = !storedLang();
-  if (!mustChoose && (reduced || seen)) return endIntro(true);
-
-  document.body.style.overflow = 'hidden';
-  intro.style.clipPath = 'inset(0 0 0% 0)';
-  const line = intro.querySelector<HTMLElement>('.intro__line')!;
-
-  let show: Promise<void>;
-  try {
-    if (reduced) throw new Error('mouvement réduit');
-    const { playEmblem } = await import('./emblem');
-    show = playEmblem(intro.querySelector('canvas')!, root.dataset.mode === 'jour');
-  } catch {
-    intro.classList.add('intro--flat');
-    show = new Promise((r) => {
-      gsap.fromTo('.intro__flat', { opacity: 0 }, { opacity: 1, duration: reduced ? 0 : 1.4, ease: 'power2.out', onComplete: () => r() });
-    });
-  }
-  gsap.to(line, { opacity: 1, duration: reduced ? 0 : 1.2, delay: reduced ? 0 : 1.6, ease: 'power2.out' });
-
-  if (mustChoose) {
-    const lang = await askLang();
-    try {
-      localStorage.setItem('mecking-lang', lang);
-    } catch {
-      /* navigation privée */
-    }
-    if (lang !== intro.dataset.lang) {
-      // L'autre langue : on y part sans rejouer l'entrée
-      try {
-        sessionStorage.setItem('mecking-intro', '1');
-      } catch {
-        /* rien */
-      }
-      location.href = intro.dataset.there!;
-      return new Promise(() => {});
-    }
-    return endIntro(reduced);
-  }
-
-  let stop = () => {};
-  const skip = new Promise<void>((resolve) => {
-    const go = () => resolve();
-    const events = ['wheel', 'touchmove', 'keydown', 'pointerdown'] as const;
-    events.forEach((e) => window.addEventListener(e, go, { once: true, passive: true }));
-    stop = () => events.forEach((e) => window.removeEventListener(e, go));
+/** On entre par le creux du premier sommet : il grandit jusqu'à sortir de l'écran. */
+function zoomIn(keepVeil: boolean, onReveal?: () => void): Promise<void> {
+  const logo = intro.querySelector<HTMLElement>('[data-intro-logo]')!;
+  intro.classList.add('is-leaving');
+  const box = logo.getBoundingClientRect();
+  const ox = 0.442; // sous la pointe du premier sommet, repère du fichier (343 / 777, 62 / 284)
+  const oy = 0.218;
+  const dx = innerWidth / 2 - (box.left + ox * box.width);
+  const dy = innerHeight / 2 - (box.top + oy * box.height);
+  // Le creux du sommet (75 px du fichier) doit dépasser largement l'écran
+  const gap = (75 / 777) * box.width;
+  const scale = gsap.utils.clamp(14, 60, (Math.max(innerWidth, innerHeight) * 1.3) / gap);
+  gsap.set(logo, { transformOrigin: `${ox * 100}% ${oy * 100}%`, willChange: 'transform' });
+  return new Promise((resolve) => {
+    const tl = gsap.timeline({ onComplete: resolve });
+    tl.to('.intro__line, .intro__lang', { opacity: 0, y: 14, duration: 0.5, ease: 'power2.in', stagger: 0.06 }, 0)
+      .to(logo, { scale: 1.08, x: dx * 0.15, y: dy * 0.15, duration: 0.7, ease: 'sine.inOut' }, 0)
+      .to(logo, { scale, x: dx, y: dy, duration: 1.5, ease: 'expo.in' }, 0.6)
+      .to(logo, { opacity: 0, duration: 0.3, ease: 'none' }, 1.85);
+    if (!keepVeil) tl.to('.intro__veil', { opacity: 0, duration: 0.9, ease: 'power1.in' }, 1.3);
+    if (onReveal) tl.call(onReveal, [], 1.35);
   });
-  await Promise.race([show.then(() => new Promise<void>((r) => setTimeout(r, 900))), skip]);
-  stop();
-  await endIntro();
+}
+
+function closeIntro() {
+  intro.classList.add('is-done');
+  document.body.style.overflow = '';
+  (window as unknown as { __lenis?: { start(): void } }).__lenis?.start();
 }
 
 /* Ouverture : les lettres géantes montent, les photos tombent en place */
 const word = document.querySelector<HTMLElement>('.hero__word')!;
 splitLetters(word);
 
-function revealHero() {
+function revealHero(paused: boolean) {
   const lines = splitLines(document.querySelector<HTMLElement>('.hero__title')!);
-  const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+  const tl = openWindow(gsap.timeline({ paused, defaults: { ease: 'expo.out' } }));
   tl.from('.hero__word .ch > span', { yPercent: 110, duration: 1.6, stagger: 0.07 }, 0.1)
-    .from('[data-hero-window]', { clipPath: 'inset(50% 50% 50% 50%)', duration: 1.8, ease: 'expo.inOut' }, 0)
     .from('.hero__shot img', { scale: 1.4, duration: 2.4 }, 0)
     .from('.tile__in', { scale: 0, rotation: () => gsap.utils.random(-25, 25), opacity: 0, duration: 1.4, stagger: 0.1, ease: 'back.out(1.4)' }, 0.6)
     .from(lines, { yPercent: 110, duration: 1.2, stagger: 0.1 }, 0.8)
@@ -145,7 +94,9 @@ function revealHero() {
       });
     });
   }
+  return tl;
 }
+
 
 function scrollScenes() {
   // Les sections fixées d'abord : les déclencheurs placés après en tiennent compte
@@ -336,23 +287,50 @@ function scrollScenes() {
 }
 
 async function start() {
-  await playIntro();
   const thread = document.querySelector<SVGSVGElement>('[data-thread]')!;
+  const there = intro.dataset.there!;
+  if (introMode === 'skip') intro.classList.add('is-done');
+  else document.body.style.overflow = 'hidden';
+  if (introMode === 'carry') remember('mecking-intro', '1', sessionStorage);
+
+  if (introMode === 'play') {
+    const lang = await chooseLang();
+    remember('mecking-lang', lang, localStorage);
+    remember('mecking-intro', '1', sessionStorage);
+    if (lang !== intro.dataset.lang) {
+      // L'autre langue : le zoom part d'ici, l'accueil apparaît sur l'autre page
+      remember('mecking-intro', 'carry', sessionStorage);
+      if (!reduced) await zoomIn(true);
+      location.href = there;
+      return;
+    }
+  }
+
   if (reduced) {
     root.classList.add('is-ready');
-    return staticThread(thread);
+    staticThread(thread);
+    if (introMode !== 'skip') await gsap.to(intro, { opacity: 0, duration: 0.4 });
+    return closeIntro();
   }
   // Les lignes des titres se calculent avec les vraies polices
   await document.fonts.ready;
-  startSmooth();
+  const lenis = startSmooth();
+  if (introMode !== 'skip') lenis.stop();
   window.dispatchEvent(new Event('mecking:fit'));
-  revealHero();
+  const hero = revealHero(introMode !== 'skip');
   // Les éléments sont à leur point de départ : la page peut apparaître
   root.classList.add('is-ready');
   scrollScenes();
   startThread(thread);
   if (matchMedia('(hover: hover) and (pointer: fine)').matches) startCursor();
   document.fonts.ready.then(() => ScrollTrigger.refresh());
+
+  if (introMode === 'play') await zoomIn(false, () => hero.play());
+  else if (introMode === 'carry') {
+    hero.play();
+    await gsap.to('.intro__veil', { opacity: 0, duration: 1.1, ease: 'power2.inOut' });
+  }
+  closeIntro();
 }
 
 start();

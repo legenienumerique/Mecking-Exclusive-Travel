@@ -58,8 +58,18 @@ const wall = [
 ---
 <Base title={t(c.title)} description={t(c.description)} page="home">
   <div class="intro" data-intro data-there={href('home', other(lang))} data-lang={lang}>
-    <canvas class="intro__canvas" data-emblem aria-hidden="true"></canvas>
-    <span class="mark mark--symbole intro__flat" aria-hidden="true"></span>
+    <div class="intro__veil"></div>
+    <div class="intro__logo" data-intro-logo role="img" aria-label={brand.name}>
+      <!-- Tracé du symbole : contours relevés sur le logo d'origine (repère 777 × 284 du fichier) -->
+      <svg class="intro__draw" viewBox="0 0 777 284" aria-hidden="true" focusable="false">
+        <polygon pathLength="1" points="343.4,6 403.8,90 391,90 339.5,17 288,90 284,90" />
+        <polygon pathLength="1" points="429.6,6 490,90 477.2,90 425.7,17 394.8,60.8 390.8,60.8" />
+      </svg>
+      <span class="mark mark--logo intro__part intro__part--sym" aria-hidden="true"></span>
+      <span class="mark mark--logo intro__part intro__part--name" aria-hidden="true"></span>
+      <span class="mark mark--logo intro__part intro__part--sub" aria-hidden="true"></span>
+      <span class="intro__glow" aria-hidden="true"><span class="mark mark--logo intro__shine"></span></span>
+    </div>
     <p class="intro__line" aria-hidden="true">{t(c.line)}</p>
     <div class="intro__lang" data-lang-choice role="group" aria-label="Langue / Language">
       <button type="button" data-choose="fr" lang="fr">Français</button>

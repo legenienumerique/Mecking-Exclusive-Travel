@@ -16,6 +16,23 @@ export { gsap, ScrollTrigger, SplitText };
 const root = document.documentElement;
 export const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/**
+ * Découpe CSS d'un élément en quatre valeurs. Le navigateur abrège « inset(a b c b) »
+ * en « inset(a b c) » : GSAP prendrait alors 0 à gauche, d'où un saut en fin d'animation.
+ */
+export function insetOf(el: Element) {
+  const m = getComputedStyle(el).clipPath.match(/inset\(([^)]*)\)/);
+  const [t = '0%', r = t, b = t, l = r] = m ? m[1].trim().split(/\s+/) : [];
+  return `inset(${t} ${r} ${b} ${l})`;
+}
+
+/** La fenêtre photo de l'ouverture s'ouvre depuis son centre jusqu'à sa découpe CSS. */
+export function openWindow(tl: gsap.core.Timeline, at = 0) {
+  const win = document.querySelector<HTMLElement>('[data-hero-window]');
+  if (win) tl.fromTo(win, { clipPath: 'inset(50% 50% 50% 50%)' }, { clipPath: insetOf(win), duration: 1.8, ease: 'expo.inOut' }, at);
+  return tl;
+}
+
 export function splitLines(el: HTMLElement) {
   return SplitText.create(el, { type: 'lines', mask: 'lines', linesClass: 'line' }).lines;
 }
