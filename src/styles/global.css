@@ -1090,7 +1090,7 @@ html[data-entry='play'] .intro__lang {
   opacity: 0.3;
 }
 
-.plist.is-hover a:hover,
+.plist.is-hover a.is-active,
 .plist a:focus-visible {
   opacity: 1;
   transform: translateX(1.5rem);
@@ -1309,7 +1309,8 @@ main {
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 8;
+  /* Le personnage remplace la flèche : toujours au-dessus de l'en-tête (40), du menu (60) et de l'entrée (50) */
+  z-index: 90;
   width: 26px;
   height: 20px;
   overflow: visible;

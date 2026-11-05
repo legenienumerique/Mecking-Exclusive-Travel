@@ -248,25 +248,56 @@ function scrollScenes() {
     const px = gsap.quickTo(preview, 'x', { duration: 0.7, ease: 'power3' });
     const py = gsap.quickTo(preview, 'y', { duration: 0.7, ease: 'power3' });
     const rot = gsap.quickTo(preview, 'rotation', { duration: 0.6, ease: 'power3' });
-    let lx = 0;
-    window.addEventListener('pointermove', (e) => {
-      px(e.clientX + 30);
-      py(e.clientY - preview.offsetHeight / 2);
-      rot(gsap.utils.clamp(-10, 10, (e.clientX - lx) * 0.25));
-      lx = e.clientX;
-    });
+    // Un seul état : la prestation sous la souris. Recalculé au mouvement et au défilement
+    // (une page qui défile sous une souris immobile ne déclenche aucun pointerleave).
+    const links = Array.from(list.querySelectorAll<HTMLAnchorElement>('a'));
     const shots = preview.querySelectorAll('.preview__shot');
-    list.querySelectorAll('a').forEach((a, i) =>
-      a.addEventListener('pointerenter', () => {
-        list.classList.add('is-hover');
+    let active = -1;
+    let mx = -1;
+    let my = -1;
+    let lx = 0;
+    let queued = false;
+    const setActive = (i: number) => {
+      if (i === active) return;
+      active = i;
+      list.classList.toggle('is-hover', i >= 0);
+      links.forEach((a, k) => a.classList.toggle('is-active', k === i));
+      if (i >= 0) {
         shots.forEach((s, k) => s.classList.toggle('is-on', k === i));
-        gsap.to(preview, { opacity: 1, scale: 1, duration: 0.6, ease: 'expo.out' });
-      }),
+        gsap.to(preview, { opacity: 1, scale: 1, duration: 0.6, ease: 'expo.out', overwrite: 'auto' });
+      } else gsap.to(preview, { opacity: 0, scale: 0.7, duration: 0.5, ease: 'power3.in', overwrite: 'auto' });
+    };
+    const check = () => {
+      queued = false;
+      const a = mx < 0 ? null : document.elementFromPoint(mx, my)?.closest('a');
+      setActive(a ? links.indexOf(a as HTMLAnchorElement) : -1);
+    };
+    const queue = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(check);
+    };
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        if (e.pointerType !== 'mouse') return;
+        mx = e.clientX;
+        my = e.clientY;
+        px(mx + 30);
+        py(my - preview.offsetHeight / 2);
+        rot(gsap.utils.clamp(-10, 10, (mx - lx) * 0.25));
+        lx = mx;
+        queue();
+      },
+      { passive: true },
     );
-    list.addEventListener('pointerleave', () => {
-      list.classList.remove('is-hover');
-      gsap.to(preview, { opacity: 0, scale: 0.7, duration: 0.5, ease: 'power3.in' });
-    });
+    window.addEventListener('scroll', queue, { passive: true });
+    const off = () => {
+      mx = -1;
+      setActive(-1);
+    };
+    document.documentElement.addEventListener('mouseleave', off);
+    window.addEventListener('blur', off);
   }
   gsap.from(list.querySelectorAll('li'), {
     y: 50,
